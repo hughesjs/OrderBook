@@ -11,7 +11,7 @@ WebApplication app = builder.Build();
 // Configure the HTTP request pipeline.
 app.MapGrpcService<GreeterService>();
 
-if (env.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
 	app.MapGrpcReflectionService();
 }
