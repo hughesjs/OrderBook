@@ -15,4 +15,8 @@
         <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.49.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Services\ApplicationServices" />
+    </ItemGroup>
+
 </Project>
