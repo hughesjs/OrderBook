@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+import "Protos/CustomTypes/guid.proto";
+import "Protos/CustomTypes/decimal.proto";
+import "Protos/CustomTypes/assetclass.proto";
+import "Protos/CustomTypes/responsestatus.proto";
+import "google/protobuf/timestamp.proto";
+
+package orderBook;
+
+option csharp_namespace = "OrderBookService.Protos.ServiceBases";
+
+service OrderBookService {
+  rpc AddOrder (AddOrModifyOrderRequest) returns (OrderBookModificationResponse);
+  rpc ModifyOrder (AddOrModifyOrderRequest) returns (OrderBookModificationResponse);
+  rpc RemoveOrder (RemoveOrderRequest) returns (OrderBookModificationResponse);
+  
+  rpc GetPrice (GetPriceRequest) returns (PriceResponse);
+}
+
+// The request message containing the user's name.
+message AddOrModifyOrderRequest {
+  customProtoTypes.Guid idempotencyKey = 1;
+  customProtoTypes.Guid orderId = 2;
+  customProtoTypes.AssetClassValue assetClass = 3;
+  customProtoTypes.DecimalValue amount = 4;
+}
+
+message RemoveOrderRequest {
+  customProtoTypes.Guid idempotencyKey = 1;
+  customProtoTypes.Guid orderId = 2;
+  customProtoTypes.AssetClassValue assetClass = 3;
+}
+
+message OrderBookModificationResponse {
+  customProtoTypes.ResponseStatus status = 1;
+}
+
+message GetPriceRequest {
+  customProtoTypes.ResponseStatus status = 1;
+  customProtoTypes.AssetClassValue assetClass = 2;
+  customProtoTypes.DecimalValue amount = 3;
+}
+
+message PriceResponse {
+  customProtoTypes.ResponseStatus status = 1;
+   google.protobuf.Timestamp timeValidAt = 2;
+   customProtoTypes.DecimalValue price = 3;
+}
+
+
