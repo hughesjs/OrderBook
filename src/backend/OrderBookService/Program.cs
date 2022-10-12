@@ -1,12 +1,12 @@
 using OrderBookService.Services;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddGrpc();
 builder.Services.AddGrpcReflection();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.MapGrpcService<GreeterService>();
