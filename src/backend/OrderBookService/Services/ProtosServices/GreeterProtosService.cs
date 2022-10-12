@@ -1,12 +1,12 @@
 using Grpc.Core;
-using OrderBookService;
+using OrderBookService.Protos.ServiceBases;
 
-namespace OrderBookService.Services;
+namespace OrderBookService.Services.ProtosServices;
 
-public class GreeterService : Greeter.GreeterBase
+public class GreeterProtosService : Greeter.GreeterBase
 {
-    private readonly ILogger<GreeterService> _logger;
-    public GreeterService(ILogger<GreeterService> logger)
+    private readonly ILogger<GreeterProtosService> _logger;
+    public GreeterProtosService(ILogger<GreeterProtosService> logger)
     {
         _logger = logger;
     }
