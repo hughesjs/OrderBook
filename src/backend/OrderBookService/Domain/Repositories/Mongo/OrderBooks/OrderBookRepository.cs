@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using OrderBookService.Application.Config;
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
+using OrderBookService.Domain.Models.Orders;
 
 namespace OrderBookService.Domain.Repositories.Mongo.OrderBooks;
 
@@ -26,7 +27,12 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 		return res;
 	}
 
-	private IMongoCollection<OrderBookEntity> GetCollection(AssetDefinition asset) => Database.GetCollection<OrderBookEntity>($"{asset.Class}${asset.Symbol}");
+	public async Task AddOrderToOrderBook(AssetDefinition key, Order order)
+	{
+		// TODO!
+	}
+
+	private IMongoCollection<OrderBookEntity> GetCollection(AssetDefinition asset) => Database.GetCollection<OrderBookEntity>($"{asset.Class}-{asset.Symbol}");
 }
 
 

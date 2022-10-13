@@ -8,7 +8,7 @@ namespace OrderBookService.Domain.Entities;
 internal class OrderBookEntity
 {
 	[BsonId]
-	public AssetDefinition UnderlyingAsset { get; init; }
+	public required AssetDefinition UnderlyingAsset { get; init; }
 	
-	public List<Order> Orders { get; init; }
+	public required List<OrderEntity> Orders { get; init; }
 }

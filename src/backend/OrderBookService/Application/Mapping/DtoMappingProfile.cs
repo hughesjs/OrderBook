@@ -13,7 +13,7 @@ public class DtoMappingProfile: Profile
 		CreateMap<GuidValue, Guid>().ReverseMap();
 		CreateMap<AssetDefinitionValue, AssetDefinition>().ReverseMap();
 		CreateMap<AddOrModifyOrderRequest, Order>()
-		   .ForMember(dest => dest.Id, opt => opt.MapFrom(s => s.OrderId))
+		   .ForMember(dest => dest.Id, opt => opt.MapFrom(s => s.OrderId.Value))
 		   .ForMember(dest => dest.EffectiveTime, opt => opt.Ignore());
 	}
 }

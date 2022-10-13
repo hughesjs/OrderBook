@@ -1,4 +1,5 @@
 using AutoMapper;
+using MongoDB.Driver;
 using OrderBookProtos.ServiceBases;
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
@@ -13,9 +14,10 @@ internal class OrderBookService: IOrderBookService
 {
 	private readonly IMapper              _mapper;
 	private readonly IOrderBookRepository _orderBookRepository;
-	public OrderBookService(IMapper mapper)
+	public OrderBookService(IMapper mapper, IOrderBookRepository orderBookRepository)
 	{
 		_mapper = mapper;
+		_orderBookRepository = orderBookRepository;
 	}
 
 	public async Task<OrderBookModificationResponse> AddOrder(AddOrModifyOrderRequest request)
@@ -23,10 +25,19 @@ internal class OrderBookService: IOrderBookService
 		AssetDefinition assetDefinition = _mapper.Map<AssetDefinition>(request.AssetDefinition);
 		Order           requestedOrder  = _mapper.Map<Order>(request);
 
-		OrderBookEntity? orderBookEntity = await _orderBookRepository.GetSingleAsync(assetDefinition);
-		OrderBook        orderBook       = _mapper.Map<OrderBook>(orderBookEntity);
-		
-		return new() {Status = new() {IsSuccess = false, Message = "Not Yet Implemented"}};
+		OrderBookEntity readOrderBookEntity = await _orderBookRepository.GetSingleAsync(assetDefinition) ?? new OrderBookEntity
+																										{
+																											Orders = new(),
+																											UnderlyingAsset = assetDefinition
+																										};
+		OrderBook orderBook = _mapper.Map<OrderBook>(readOrderBookEntity);
+		orderBook.Add(requestedOrder with {EffectiveTime = DateTime.UtcNow});
+
+		OrderBookEntity orderBookEntityToSave = _mapper.Map<OrderBookEntity>(orderBook);
+
+		ReplaceOneResult res = await _orderBookRepository.UpsertSingleAsync(orderBookEntityToSave);
+
+		return new() {Status = new() {IsSuccess = res.IsAcknowledged, Message = res.IsAcknowledged ? "Success" : "Failed to alter order-book"}};
 	}
 
 	public async Task<OrderBookModificationResponse> RemoveOrder(RemoveOrderRequest request) =>  new() {Status = new() {IsSuccess = false, Message = "Not Yet Implemented"}};
