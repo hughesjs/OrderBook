@@ -1,8 +1,8 @@
 using AutoMapper;
-using OrderBook.Protos.CustomTypes;
+using OrderBookProtos.CustomTypes;
+using OrderBookProtos.ServiceBases;
 using OrderBookService.Domain.Models.Assets;
 using OrderBookService.Domain.Models.Orders;
-using OrderBookService.Protos.ServiceBases;
 
 namespace OrderBookService.Application.Mapping;
 

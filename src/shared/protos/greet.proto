@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option csharp_namespace = "OrderBookService.Protos.ServiceBases";
+option csharp_namespace = "OrderBookProtos.ServiceBases";
 
 package greet;
 

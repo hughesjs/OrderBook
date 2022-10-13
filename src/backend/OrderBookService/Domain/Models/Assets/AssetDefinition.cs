@@ -1,4 +1,4 @@
-using OrderBook.Protos.CustomTypes;
+using OrderBookProtos.CustomTypes;
 
 namespace OrderBookService.Domain.Models.Assets;
 

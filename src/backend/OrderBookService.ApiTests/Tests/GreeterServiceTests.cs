@@ -1,4 +1,4 @@
-using OrderBookService.Protos.ServiceBases;
+using OrderBookProtos.ServiceBases;
 using Shouldly;
 using Xunit.Abstractions;
 

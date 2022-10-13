@@ -1,5 +1,5 @@
 using AutoFixture;
-using OrderBookService.Protos.ServiceBases;
+using OrderBookProtos.ServiceBases;
 using Shouldly;
 using Xunit.Abstractions;
 
@@ -12,7 +12,7 @@ public class OrderBookServiceTests: ApiTestBase
 	[Fact]
 	public async Task AddOrderTest()
 	{
-		Protos.ServiceBases.OrderBookService.OrderBookServiceClient client = new(Channel);
+		OrderBookProtos.ServiceBases.OrderBookService.OrderBookServiceClient client = new(Channel);
 
 		AddOrModifyOrderRequest req = AutoFixture.Create<AddOrModifyOrderRequest>();
 
@@ -26,8 +26,8 @@ public class OrderBookServiceTests: ApiTestBase
 	[Fact]
 	public async Task ModifyOrderTest()
 	{
-		Protos.ServiceBases.OrderBookService.OrderBookServiceClient client = new(Channel);
-        
+		OrderBookProtos.ServiceBases.OrderBookService.OrderBookServiceClient client = new(Channel);
+				
 		AddOrModifyOrderRequest req = AutoFixture.Create<AddOrModifyOrderRequest>();
 
 		OrderBookModificationResponse? response = await client.ModifyOrderAsync(req);
@@ -40,7 +40,7 @@ public class OrderBookServiceTests: ApiTestBase
 	[Fact]
 	public async Task RemoveOrderTest()
 	{
-		Protos.ServiceBases.OrderBookService.OrderBookServiceClient client = new(Channel);
+		OrderBookProtos.ServiceBases.OrderBookService.OrderBookServiceClient client = new(Channel);
         
 		RemoveOrderRequest req = AutoFixture.Create<RemoveOrderRequest>();
 
@@ -54,7 +54,7 @@ public class OrderBookServiceTests: ApiTestBase
 	[Fact]
 	public async Task GetPriceTest()
 	{
-		Protos.ServiceBases.OrderBookService.OrderBookServiceClient client = new(Channel);
+		OrderBookProtos.ServiceBases.OrderBookService.OrderBookServiceClient client = new(Channel);
         
 		GetPriceRequest req = AutoFixture.Create<GetPriceRequest>();
 

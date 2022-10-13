@@ -2,7 +2,7 @@
 
 // This isn't going to line-up because it's autogenned proto code I'm hooking into
 // ReSharper disable once CheckNamespace
-namespace OrderBook.Protos.CustomTypes;
+namespace OrderBookProtos.CustomTypes;
 
 
 public partial class DecimalValue

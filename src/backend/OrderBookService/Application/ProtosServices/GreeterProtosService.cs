@@ -1,5 +1,5 @@
 using Grpc.Core;
-using OrderBookService.Protos.ServiceBases;
+using OrderBookProtos.ServiceBases;
 
 namespace OrderBookService.Services.ProtosServices;
 

@@ -3,7 +3,7 @@ syntax = "proto3";
 
 package customProtoTypes;
 
-option csharp_namespace = "OrderBook.Protos.CustomTypes";
+option csharp_namespace = "OrderBookProtos.CustomTypes";
 
 // Name "DecimalValue" prevents conflict with C# Decimal type
 message DecimalValue {

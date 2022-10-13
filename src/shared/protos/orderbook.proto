@@ -9,7 +9,7 @@ import "google/protobuf/timestamp.proto";
 
 package orderBook;
 
-option csharp_namespace = "OrderBookService.Protos.ServiceBases";
+option csharp_namespace = "OrderBookProtos.ServiceBases";
 
 service OrderBookService {
   rpc AddOrder (AddOrModifyOrderRequest) returns (OrderBookModificationResponse);
