@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using OrderBookService.DependencyInjection;
 using OrderBookService.Services.ProtosServices;
 
@@ -21,3 +22,5 @@ if (app.Environment.IsDevelopment())
 
 app.Run();
 
+[UsedImplicitly]
+public partial class Program { }

@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderBookService", "OrderBo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderBookService.Tests", "OrderBookService.Tests\OrderBookService.Tests.csproj", "{C7158575-C2E1-4208-BAE1-2CB19EFA3457}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderBookService.ApiTests", "OrderBookService.ApiTests\OrderBookService.ApiTests.csproj", "{196B37EE-FBEC-4E8B-BB5A-6DFF95BA7856}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{C7158575-C2E1-4208-BAE1-2CB19EFA3457}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7158575-C2E1-4208-BAE1-2CB19EFA3457}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7158575-C2E1-4208-BAE1-2CB19EFA3457}.Release|Any CPU.Build.0 = Release|Any CPU
+		{196B37EE-FBEC-4E8B-BB5A-6DFF95BA7856}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{196B37EE-FBEC-4E8B-BB5A-6DFF95BA7856}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{196B37EE-FBEC-4E8B-BB5A-6DFF95BA7856}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{196B37EE-FBEC-4E8B-BB5A-6DFF95BA7856}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

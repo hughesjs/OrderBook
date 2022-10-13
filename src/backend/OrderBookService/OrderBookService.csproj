@@ -5,21 +5,25 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
-
-   
+    
     <ItemGroup>
-        <Protobuf Include="Protos\CustomTypes\assetclass.proto" GrpcServices="Server" />
-        <Protobuf Include="Protos\CustomTypes\decimal.proto" GrpcServices="Server" />
-        <Protobuf Include="Protos\CustomTypes\guid.proto" GrpcServices="Server" />
-        <Protobuf Include="Protos\CustomTypes\responsestatus.proto" GrpcServices="Server" />
-        
-        <Protobuf Include="Protos\greet.proto" GrpcServices="Server" />
-        <Protobuf Include="Protos\orderbook.proto" GrpcServices="Server" />
+        <!-- Deliberately not making internals visible to the integration tests -->
+        <InternalsVisibleTo Include="OrderBookService.Tests" />
+    </ItemGroup>
+  
+    <ItemGroup>
+        <Protobuf Include="Protos\customtypes\assetclass.proto" />
+        <Protobuf Include="Protos\customtypes\decimal.proto" />
+        <Protobuf Include="Protos\customtypes\guid.proto" />
+        <Protobuf Include="Protos\customtypes\responsestatus.proto" />        
+        <Protobuf Include="Protos\greet.proto" />
+        <Protobuf Include="Protos\orderbook.proto" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Grpc.AspNetCore" Version="2.49.0" />
         <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.49.0" />
+        <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
     </ItemGroup>
 
 </Project>
