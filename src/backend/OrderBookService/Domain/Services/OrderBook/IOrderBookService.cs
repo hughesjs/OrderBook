@@ -1,8 +1,8 @@
 using OrderBookService.Protos.ServiceBases;
 
-namespace OrderBookService.Services.ApplicationServices;
+namespace OrderBookService.Domain.Services.OrderBook;
 
-public interface IOrderbookService
+public interface IOrderBookService
 {
 	public Task<OrderBookModificationResponse> AddOrder(AddOrModifyOrderRequest request);
 	public Task<OrderBookModificationResponse> RemoveOrder(RemoveOrderRequest request);

@@ -1,4 +1,4 @@
-namespace OrderBookService.Models;
+namespace OrderBookService.Domain.Models.AssetClasses;
 
 public abstract record AssetClassBase
 {

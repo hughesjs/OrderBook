@@ -1,4 +1,7 @@
-namespace OrderBookService.Models;
+using OrderBookService.Domain.Models.AssetClasses;
+using OrderBookService.Domain.Models.Orders;
+
+namespace OrderBookService.Domain.Models.OrderBooks;
 
 internal sealed class CoinPairOrderBook: OrderBookBase<CoinPair>
 {

@@ -1,6 +1,6 @@
-namespace OrderBookService.Models;
+namespace OrderBookService.Domain.Models.Orders;
 
-internal abstract record Order
+internal record Order
 {
 	public required Guid        Id          { get; init; }
 	public required decimal     Price       { get; init; }
