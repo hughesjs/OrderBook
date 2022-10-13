@@ -7,7 +7,6 @@ public static class ServiceCollectionExtensions
 	public static IServiceCollection AddOrderBookServices(this IServiceCollection services)
 	{
 		services.AddTransient<IOrderBookService, Domain.Services.OrderBook.OrderBookService>();
-
 		return services;
 	}
 }

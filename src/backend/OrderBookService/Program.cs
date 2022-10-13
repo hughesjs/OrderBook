@@ -7,7 +7,11 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddGrpc();
 builder.Services.AddGrpcReflection();
+
 builder.Services.AddOrderBookServices();
+
+builder.ConfigureOrderBookServices();
+
 
 WebApplication app = builder.Build();
 

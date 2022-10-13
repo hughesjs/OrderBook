@@ -1,10 +1,12 @@
 using Grpc.Core;
+using OrderBookService.Domain.Models.AssetClasses;
+using OrderBookService.Domain.Repositories;
 using OrderBookService.Domain.Services.OrderBook;
 using OrderBookService.Protos.ServiceBases;
 
 namespace OrderBookService.Services.ProtosServices;
 
-public class OrderBookProtosService: Protos.ServiceBases.OrderBookService.OrderBookServiceBase
+internal class OrderBookProtosService: Protos.ServiceBases.OrderBookService.OrderBookServiceBase
 {
 	private readonly ILogger<OrderBookProtosService> _logger;
 	private readonly IOrderBookService               _orderBookService;
