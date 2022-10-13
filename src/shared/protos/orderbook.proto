@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-import "Protos/CustomTypes/guid.proto";
-import "Protos/CustomTypes/decimal.proto";
-import "Protos/CustomTypes/assetclass.proto";
-import "Protos/CustomTypes/responsestatus.proto";
+import "Protos/customtypes/guid.proto";
+import "Protos/customtypes/decimal.proto";
+import "Protos/customtypes/assetclass.proto";
+import "Protos/customtypes/responsestatus.proto";
 import "google/protobuf/timestamp.proto";
 
 package orderBook;
