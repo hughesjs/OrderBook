@@ -1,4 +1,4 @@
-namespace OrderBookService.Models;
+namespace OrderBookService.Domain.Models.Orders;
 
 internal abstract record Order
 {

@@ -1,6 +1,7 @@
 using System.Collections;
+using OrderBookService.Domain.Models.Orders;
 
-namespace OrderBookService.Models;
+namespace OrderBookService.Domain.Models.OrderBooks;
 
 internal abstract class OrderBookBase<TAsset>:  ICollection<Order>
 {

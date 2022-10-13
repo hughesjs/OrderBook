@@ -22,5 +22,8 @@ if (app.Environment.IsDevelopment())
 
 app.Run();
 
-[UsedImplicitly]
-public partial class Program { }
+namespace OrderBookService
+{
+	[UsedImplicitly]
+	public partial class Program { }
+}

@@ -1,8 +1,8 @@
 using OrderBookService.Protos.ServiceBases;
 
-namespace OrderBookService.Services.ApplicationServices;
+namespace OrderBookService.Domain.Services.OrderBook;
 
-internal class OrderBookService: IOrderbookService
+internal class OrderBookService: IOrderBookService
 {
 
 	public async Task<OrderBookModificationResponse> AddOrder(AddOrModifyOrderRequest request) => new() {Status = new() {IsSuccess = false, Message = "Not Yet Implemented"}};
