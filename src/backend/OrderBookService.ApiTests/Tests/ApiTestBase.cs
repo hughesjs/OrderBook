@@ -1,3 +1,4 @@
+using AutoFixture;
 using Grpc.Net.Client;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
@@ -10,9 +11,12 @@ public class ApiTestBase : IClassFixture<OrderBookTestFixture>, IDisposable
 	
 	private   LoggerFactory        LoggerFactory { get; }
 	private   GrpcChannel?         _channel;
+	
+	protected Fixture AutoFixture { get; }
 
 	protected ApiTestBase(OrderBookTestFixture fixture, ITestOutputHelper outputHelper)
 	{
+		AutoFixture   = new();
 		LoggerFactory = new();
 		Fixture       = fixture;
 	}
