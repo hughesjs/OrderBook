@@ -10,8 +10,6 @@ High-performance trading order-book
 
 # Notes
 
-- A lot of the fixture code surrounding the gRPC testing infrastructure was taken from the gRPC author's example code. 
-The license notices clearly indicate where this is true. This is the integration testing methodology [recommended by Microsoft for gRPC](https://learn.microsoft.com/en-us/aspnet/core/grpc/test-services?view=aspnetcore-6.0).
 - If you are on Windows, make sure you have symlinks enabled in your git config or this **will not build**. No changes are needed on MacOs or Linux.
 
 
