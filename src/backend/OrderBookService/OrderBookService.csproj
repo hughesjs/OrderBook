@@ -5,14 +5,17 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
-
-   
+    
     <ItemGroup>
-        <Protobuf Include="Protos\CustomTypes\assetclass.proto" GrpcServices="Server" />
-        <Protobuf Include="Protos\CustomTypes\decimal.proto" GrpcServices="Server" />
-        <Protobuf Include="Protos\CustomTypes\guid.proto" GrpcServices="Server" />
-        <Protobuf Include="Protos\CustomTypes\responsestatus.proto" GrpcServices="Server" />
-        
+        <!-- Deliberately not making internals visible to the integration tests -->
+        <InternalsVisibleTo Include="OrderBookService.Tests" />
+    </ItemGroup>
+  
+    <ItemGroup>
+        <Protobuf Include="Protos\customtypes\assetclass.proto" GrpcServices="Server" />
+        <Protobuf Include="Protos\customtypes\decimal.proto" GrpcServices="Server" />
+        <Protobuf Include="Protos\customtypes\guid.proto" GrpcServices="Server" />
+        <Protobuf Include="Protos\customtypes\responsestatus.proto" GrpcServices="Server" />        
         <Protobuf Include="Protos\greet.proto" GrpcServices="Server" />
         <Protobuf Include="Protos\orderbook.proto" GrpcServices="Server" />
     </ItemGroup>
