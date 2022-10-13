@@ -11,6 +11,10 @@
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
         <PackageReference Include="AutoFixture" Version="4.17.0" />
+        <PackageReference Include="GitHubActionsTestLogger" Version="2.0.1">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.10" />
         <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.10" />
         <PackageReference Include="Grpc.Net.Client" Version="2.49.0" />
