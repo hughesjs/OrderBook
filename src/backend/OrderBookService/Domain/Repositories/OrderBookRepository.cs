@@ -9,8 +9,8 @@ namespace OrderBookService.Domain.Repositories;
 internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, AssetDefinition>
 {
 	private static readonly ReplaceOptions UpsertOptions = new() {IsUpsert = true};
-	
-	protected OrderBookRepository(IOptions<MongoDbSettings> mongoSettings) : base(mongoSettings) { }
+
+	internal OrderBookRepository(IOptions<MongoDbSettings> mongoSettings) : base(mongoSettings) { }
 
 	public override async Task<OrderBookEntity> GetSingleAsync(AssetDefinition key)
 	{

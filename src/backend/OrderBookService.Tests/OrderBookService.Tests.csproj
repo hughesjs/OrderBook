@@ -25,4 +25,8 @@
         </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\OrderBookService\OrderBookService.csproj" />
+    </ItemGroup>
+
 </Project>

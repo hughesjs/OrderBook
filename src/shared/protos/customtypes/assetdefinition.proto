@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+
+package customProtoTypes;
+
+option csharp_namespace = "OrderBook.Protos.CustomTypes";
+
+message AssetDefinitionValue {
+  google.protobuf.StringValue symbol = 1;
+  AssetClass class = 2;
+}
+
+enum AssetClass{
+  CoinPair = 0;
+  OnionFutures = 1;
+}
+

@@ -6,7 +6,7 @@ package customProtoTypes;
 
 option csharp_namespace = "OrderBook.Protos.CustomTypes";
 
-message Guid {
+message GuidValue {
   google.protobuf.StringValue value = 1;
 }
 
