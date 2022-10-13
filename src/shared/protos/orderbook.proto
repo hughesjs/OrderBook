@@ -34,6 +34,7 @@ message RemoveOrderRequest {
 
 message OrderBookModificationResponse {
   customProtoTypes.ResponseStatus status = 1;
+  google.protobuf.Timestamp effectiveFrom = 2;
 }
 
 message GetPriceRequest {
@@ -44,7 +45,7 @@ message GetPriceRequest {
 
 message PriceResponse {
   customProtoTypes.ResponseStatus status = 1;
-   google.protobuf.Timestamp timeValidAt = 2;
+   google.protobuf.Timestamp validAt = 2;
    customProtoTypes.DecimalValue price = 3;
 }
 

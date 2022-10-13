@@ -1,6 +1,4 @@
 using Grpc.Core;
-using OrderBookService.Domain.Models.AssetClasses;
-using OrderBookService.Domain.Repositories;
 using OrderBookService.Domain.Services.OrderBook;
 using OrderBookService.Protos.ServiceBases;
 
