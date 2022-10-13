@@ -1,15 +1,14 @@
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using OrderBookService.Domain.Models.AssetClasses;
+using OrderBookService.Domain.Models.Assets;
 using OrderBookService.Domain.Models.Orders;
 
 namespace OrderBookService.Domain.Entities;
 
 
-internal class OrderBookEntity<TAsset> where TAsset: AssetClassBase
+internal class OrderBookEntity
 {
 	[BsonId]
-	public TAsset AssetClass { get; init; }
+	public AssetDefinition UnderlyingAsset { get; init; }
 	
 	public List<Order> Orders { get; init; }
 }

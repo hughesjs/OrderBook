@@ -2,30 +2,30 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using OrderBookService.Application.Config;
 using OrderBookService.Domain.Entities;
-using OrderBookService.Domain.Models.AssetClasses;
+using OrderBookService.Domain.Models.Assets;
 
 namespace OrderBookService.Domain.Repositories;
 
-internal sealed class OrderBookRepository<TAsset>: MongoRepositoryBase<OrderBookEntity<TAsset>, TAsset> where TAsset: AssetClassBase
+internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, AssetDefinition>
 {
-	protected string CollectionName => $"{typeof(TAsset).Name}OrderBooks";
+	private static readonly ReplaceOptions UpsertOptions = new() {IsUpsert = true};
+	
+	protected OrderBookRepository(IOptions<MongoDbSettings> mongoSettings) : base(mongoSettings) { }
 
-	protected override IMongoCollection<OrderBookEntity<TAsset>> Collection { get; }
-
-	protected OrderBookRepository(IOptions<MongoDbSettings> mongoSettings) : base(mongoSettings)
+	public override async Task<OrderBookEntity> GetSingleAsync(AssetDefinition key)
 	{
-		Collection = Database.GetCollection<OrderBookEntity<TAsset>>(CollectionName);
-	}
-
-	public override async Task<OrderBookEntity<TAsset>?> GetSingleAsync(TAsset asset)
-	{
-		IAsyncCursor<OrderBookEntity<TAsset>>? res = await Collection.FindAsync(f => f.AssetClass == asset);
+		IMongoCollection<OrderBookEntity> Collection = GetCollection(key);
+		IAsyncCursor<OrderBookEntity> res = await Collection.FindAsync(f => f.UnderlyingAsset == key);
 		return await res.SingleOrDefaultAsync();
 	}
 
-	public override async Task UpsertSingleAsync(OrderBookEntity<TAsset> orderBook)
+	public override async Task<ReplaceOneResult> UpsertSingleAsync(OrderBookEntity orderBook)
 	{
-		ReplaceOneResult? res = await Collection.ReplaceOneAsync(f => f.AssetClass == orderBook.AssetClass, orderBook);
-		if (!res.IsAcknowledged) throw new IOException("Failed to save document to MongoDB"); //TODO consider this more
+		IMongoCollection<OrderBookEntity> Collection = GetCollection(orderBook.UnderlyingAsset);
+		ReplaceOneResult res  = await Collection.ReplaceOneAsync(f => f.UnderlyingAsset == orderBook.UnderlyingAsset, orderBook, UpsertOptions);
+		return res;
 	}
+
+	private IMongoCollection<OrderBookEntity> GetCollection(AssetDefinition asset) => Database.GetCollection<OrderBookEntity>($"{asset.Class}${asset.Symbol}");
 }
+
