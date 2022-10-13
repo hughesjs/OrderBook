@@ -31,4 +31,4 @@ jobs:
           dotnet-version: '7.0.x'
           dotnet-quality: 'preview'
       - name: Run unit tests
-        run: dotnet test --logger GitHubActions ./src/backend/OrderBookService.Tests/OrderBookService.ApiTests.csproj
+        run: dotnet test --logger GitHubActions ./src/backend/OrderBookService.ApiTests/OrderBookService.ApiTests.csproj
