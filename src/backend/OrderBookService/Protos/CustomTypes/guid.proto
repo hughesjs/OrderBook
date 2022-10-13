@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+package customProtoTypes;
+
+option csharp_namespace = "OrderBook.Protos.CustomTypes";
+
+message Guid {
+  google.protobuf.StringValue value = 1;
+}
+

@@ -6,17 +6,20 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
+   
     <ItemGroup>
+        <Protobuf Include="Protos\CustomTypes\assetclass.proto" GrpcServices="Server" />
+        <Protobuf Include="Protos\CustomTypes\decimal.proto" GrpcServices="Server" />
+        <Protobuf Include="Protos\CustomTypes\guid.proto" GrpcServices="Server" />
+        <Protobuf Include="Protos\CustomTypes\responsestatus.proto" GrpcServices="Server" />
+        
         <Protobuf Include="Protos\greet.proto" GrpcServices="Server" />
+        <Protobuf Include="Protos\orderbook.proto" GrpcServices="Server" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Grpc.AspNetCore" Version="2.49.0" />
         <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.49.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Services\ApplicationServices" />
     </ItemGroup>
 
 </Project>
