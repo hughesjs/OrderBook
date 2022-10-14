@@ -97,7 +97,9 @@ internal class OrderBookService: IOrderBookService
 		decimal costAccumulator          = 0;
 		decimal assetsLeftDecumulator    = request.Amount;
 
-		IOrderedEnumerable<Order> relevantOrders = orderBook.Where(o => o.OrderAction != request.OrderAction).OrderBy(o => o.Price);
+		IOrderedEnumerable<Order> relevantOrders = request.OrderAction == OrderAction.Buy
+													   ? orderBook.Where(o => o.OrderAction != request.OrderAction).OrderBy(o => o.Price)
+													   : orderBook.Where(o => o.OrderAction != request.OrderAction).OrderByDescending(o => o.Price);
 		
 		foreach (Order order in relevantOrders)
 		{

@@ -36,7 +36,7 @@ public class OrderBookServiceTests
 
 		GetPriceRequest req = new()
 							  {
-								  Amount = testCase.BuyAmount,
+								  Amount = testCase.AmountWanted,
 								  AssetDefinition = new()
 													{
 														Class  = testCase.OrderBookEntity.UnderlyingAsset.Class,
@@ -137,8 +137,8 @@ public class OrderBookServiceTests
 		// Add simple buyside cases where everything is covered by one order
 		for (int i = 0; i < testsPerClass; i++)
 		{
-			decimal buyAmount   = Fixture.Create<decimal>();
-			decimal lowestPrice = Fixture.Create<decimal>();
+			decimal buyAmount   = PositiveDecimal();
+			decimal lowestPrice = PositiveDecimal();
 			OrderBookEntity orderBookEntity = new()
 											  {
 												  UnderlyingAsset = assetDefinition,
@@ -147,15 +147,15 @@ public class OrderBookServiceTests
 															   new()
 															   {
 																   Id            = Guid.NewGuid().ToString(),
-																   Amount        = buyAmount + Fixture.Create<decimal>(),
+																   Amount        = buyAmount + PositiveDecimal(),
 																   EffectiveTime = DateTime.Today,
 																   OrderAction   = OrderAction.Sell,
-																   Price         = lowestPrice + Fixture.Create<decimal>()
+																   Price         = lowestPrice + PositiveDecimal()
 															   },
 															   new()
 															   {
 																   Id            = Guid.NewGuid().ToString(),
-																   Amount        = buyAmount + Fixture.Create<decimal>(),
+																   Amount        = buyAmount + PositiveDecimal(),
 																   EffectiveTime = DateTime.Today,
 																   OrderAction   = OrderAction.Sell,
 																   Price         = lowestPrice
@@ -164,16 +164,50 @@ public class OrderBookServiceTests
 											  };
 			testCases.Add(new()
 						  {
-							  BuyAmount = buyAmount,
+							  AmountWanted = buyAmount,
 							  ExpectedPrice = lowestPrice * buyAmount,
 							  OrderBookEntity = orderBookEntity,
 							  OrderAction = OrderAction.Buy
 						  });
-
+		
 		}
 
 		// Add simple sellside cases where everything is covered by one order
-		for (int i = 0; i < testsPerClass; i++) { }
+		for (int i = 0; i < testsPerClass; i++)
+		{
+			decimal sellAmount   = PositiveDecimal();
+			decimal highestPrice = PositiveDecimal();
+			OrderBookEntity orderBookEntity = new()
+											  {
+												  UnderlyingAsset = assetDefinition,
+												  Orders = new()
+														   {
+															   new()
+															   {
+																   Id            = Guid.NewGuid().ToString(),
+																   Amount        = sellAmount + PositiveDecimal(),
+																   EffectiveTime = DateTime.Today,
+																   OrderAction   = OrderAction.Buy,
+																   Price         = highestPrice - PositiveDecimal()
+															   },
+															   new()
+															   {
+																   Id            = Guid.NewGuid().ToString(),
+																   Amount        = sellAmount + PositiveDecimal(),
+																   EffectiveTime = DateTime.Today,
+																   OrderAction   = OrderAction.Buy,
+																   Price         = highestPrice
+															   }
+														   }
+											  };
+			testCases.Add(new()
+						  {
+							  AmountWanted       = sellAmount,
+							  ExpectedPrice   = highestPrice * sellAmount,
+							  OrderBookEntity = orderBookEntity,
+							  OrderAction     = OrderAction.Sell
+						  });
+		}
 
 		// Add complex buyside cases where multiple orders are needed
 		for (int i = 0; i < testsPerClass; i++) { }
@@ -192,12 +226,14 @@ public class OrderBookServiceTests
 		return services.BuildServiceProvider().GetRequiredService<IMapper>();
 	}
 
+	private static decimal PositiveDecimal() => decimal.Abs(Fixture.Create<decimal>());
+
 
 	internal class GetPriceTestCase
 	{
 		public required OrderBookEntity OrderBookEntity { get; init; }
 		public required OrderAction     OrderAction     { get; init; }
 		public required decimal         ExpectedPrice   { get; init; }
-		public required decimal         BuyAmount       { get; init; }
+		public required decimal         AmountWanted       { get; init; }
 	}
 }
