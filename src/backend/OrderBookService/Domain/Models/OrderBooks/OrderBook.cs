@@ -29,6 +29,11 @@ internal class OrderBook:  ICollection<Order>
 		}
 		UnderlyingAsset = underlyingAsset;
 	}
+	
+	public OrderBook()
+	{
+		_orders = new();
+	}
 
 	public IEnumerator<Order> GetEnumerator()                       => Orders.GetEnumerator();
 	IEnumerator IEnumerable.  GetEnumerator()                       => GetEnumerator();

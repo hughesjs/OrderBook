@@ -38,6 +38,7 @@ message RemoveOrderRequest {
 message GetPriceRequest {
   customProtoTypes.AssetDefinitionValue assetDefinition = 1;
   customProtoTypes.DecimalValue amount = 2;
+  OrderAction orderAction = 3;
 }
 
 message OrderBookModificationResponse {

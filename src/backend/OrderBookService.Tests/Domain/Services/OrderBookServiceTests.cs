@@ -1,8 +1,8 @@
 using AutoFixture;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
-using Google.Protobuf.WellKnownTypes;
 using NSubstitute;
+using OrderBookProtos.CustomTypes;
 using OrderBookProtos.ServiceBases;
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
@@ -17,11 +17,11 @@ public class OrderBookServiceTests
 	private const           int                           NumTests         = 100;
 	private static readonly Fixture                       Fixture          = new(); // Static so data gens can access
 	private static readonly OrderBookModificationResponse _successResponse = new() {Status = new() {IsSuccess = true, Message = "Success"}};
-	
+
 	private readonly IOrderBookService    _orderBookService;
 	private readonly IOrderBookRepository _mockOrderBookRepository;
 
-	
+
 	public OrderBookServiceTests()
 	{
 		_mockOrderBookRepository = Substitute.For<IOrderBookRepository>();
@@ -29,24 +29,53 @@ public class OrderBookServiceTests
 	}
 
 	[Theory]
+	[MemberData(nameof(GetPriceTestData), NumTests)]
+	internal async Task GivenAnOrderBookThenPriceIsSuccessfullyCalculated(GetPriceTestCase testCase)
+	{
+		_ = _mockOrderBookRepository.GetSingleAsync(Arg.Any<AssetDefinition>()).Returns(testCase.OrderBookEntity);
+
+		GetPriceRequest req = new()
+							  {
+								  Amount = testCase.BuyAmount,
+								  AssetDefinition = new()
+													{
+														Class  = testCase.OrderBookEntity.UnderlyingAsset.Class,
+														Symbol = testCase.OrderBookEntity.UnderlyingAsset.Symbol
+													},
+								  OrderAction = testCase.OrderAction
+							  };
+		
+		PriceResponse res = await _orderBookService.GetPrice(req);
+		
+		((decimal)res.Price).ShouldBe(testCase.ExpectedPrice);
+	}
+
+	// [Theory]
+	// [MemberData(nameof(GetPriceTestData), NumTests)]
+	// internal async Task GivenAnOrderBookIfOrderCannotBeSatisfiedThenReturnBestMatch(GetPriceTestCase testCase)
+	// {
+	// 	
+	// }
+
+	[Theory]
 	[MemberData(nameof(GetModifyOrderRequests), NumTests)]
 	public async Task WhenOrderIsAddedSuccessfullyThenItReturnsSuccess(AddOrModifyOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.AddOrderToOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
-		
+
 		OrderBookModificationResponse res = await _orderBookService.AddOrder(request);
 
 		res.Status.IsSuccess.ShouldBe(true);
 	}
-	
+
 	[Theory]
 	[MemberData(nameof(GetModifyOrderRequests), NumTests)]
 	public async Task WhenOrderIsAddedThenEffectiveTimeIsSetToUtcNow(AddOrModifyOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.AddOrderToOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
-		
+
 		OrderBookModificationResponse res = await _orderBookService.AddOrder(request);
-		
+
 		(DateTime.UtcNow - res.EffectiveFrom.ToDateTime()).ShouldBeLessThan(TimeSpan.FromSeconds(10));
 	}
 
@@ -55,20 +84,20 @@ public class OrderBookServiceTests
 	public async Task WhenOrderIsModifiedSuccessfullyThenItReturnsSuccess(AddOrModifyOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
-		
+
 		OrderBookModificationResponse res = await _orderBookService.ModifyOrder(request);
-		
+
 		res.Status.IsSuccess.ShouldBe(true);
 	}
-	
+
 	[Theory]
 	[MemberData(nameof(GetModifyOrderRequests), NumTests)]
 	public async Task WhenOrderIsModifiedSuccessfullyThenEffectiveTimeIsSetToUtcNow(AddOrModifyOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
-		
+
 		OrderBookModificationResponse res = await _orderBookService.ModifyOrder(request);
-		
+
 		(DateTime.UtcNow - res.EffectiveFrom.ToDateTime()).ShouldBeLessThan(TimeSpan.FromSeconds(10));
 	}
 
@@ -77,28 +106,83 @@ public class OrderBookServiceTests
 	public async Task WhenOrderIsRemovedSuccessfullyThenItReturnsSuccess(RemoveOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
-		
+
 		OrderBookModificationResponse res = await _orderBookService.RemoveOrder(request);
-		
+
 		res.Status.IsSuccess.ShouldBe(true);
 	}
-	
+
 	[Theory]
 	[MemberData(nameof(GetRemoveOrderRequests), NumTests)]
 	public async Task WhenOrderIsRemovedSuccessfullyThenEffectiveTimeIsSetToUtcNow(RemoveOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
-		
+
 		OrderBookModificationResponse res = await _orderBookService.RemoveOrder(request);
-		
+
 		(DateTime.UtcNow - res.EffectiveFrom.ToDateTime()).ShouldBeLessThan(TimeSpan.FromSeconds(10));
 	}
-	
-
-	
 
 	public static IEnumerable<object[]> GetModifyOrderRequests(int num) => Fixture.CreateMany<AddOrModifyOrderRequest>(num).Select(or => new object[] {or});
 	public static IEnumerable<object[]> GetRemoveOrderRequests(int num) => Fixture.CreateMany<RemoveOrderRequest>(num).Select(or => new object[] {or});
+
+	public static IEnumerable<object[]> GetPriceTestData(int num)
+	{
+		int testsPerClass = num/4;
+
+		AssetDefinition assetDefinition = Fixture.Create<AssetDefinition>();
+
+		List<GetPriceTestCase> testCases = new();
+
+		// Add simple buyside cases where everything is covered by one order
+		for (int i = 0; i < testsPerClass; i++)
+		{
+			decimal buyAmount   = Fixture.Create<decimal>();
+			decimal lowestPrice = Fixture.Create<decimal>();
+			OrderBookEntity orderBookEntity = new()
+											  {
+												  UnderlyingAsset = assetDefinition,
+												  Orders = new()
+														   {
+															   new()
+															   {
+																   Id            = Guid.NewGuid().ToString(),
+																   Amount        = buyAmount + Fixture.Create<decimal>(),
+																   EffectiveTime = DateTime.Today,
+																   OrderAction   = OrderAction.Sell,
+																   Price         = lowestPrice + Fixture.Create<decimal>()
+															   },
+															   new()
+															   {
+																   Id            = Guid.NewGuid().ToString(),
+																   Amount        = buyAmount + Fixture.Create<decimal>(),
+																   EffectiveTime = DateTime.Today,
+																   OrderAction   = OrderAction.Sell,
+																   Price         = lowestPrice
+															   }
+														   }
+											  };
+			testCases.Add(new()
+						  {
+							  BuyAmount = buyAmount,
+							  ExpectedPrice = lowestPrice * buyAmount,
+							  OrderBookEntity = orderBookEntity,
+							  OrderAction = OrderAction.Buy
+						  });
+
+		}
+
+		// Add simple sellside cases where everything is covered by one order
+		for (int i = 0; i < testsPerClass; i++) { }
+
+		// Add complex buyside cases where multiple orders are needed
+		for (int i = 0; i < testsPerClass; i++) { }
+
+		// Add complex sellside cases where multiple orders are needed
+		for (int i = 0; i < testsPerClass; i++) { }
+
+		return testCases.Select(tc => new object[] {tc});
+	}
 
 	private IMapper GetMapper()
 	{
@@ -106,5 +190,14 @@ public class OrderBookServiceTests
 		ServiceCollection services = new();
 		services.AddAutoMapper(typeof(Program).Assembly);
 		return services.BuildServiceProvider().GetRequiredService<IMapper>();
+	}
+
+
+	internal class GetPriceTestCase
+	{
+		public required OrderBookEntity OrderBookEntity { get; init; }
+		public required OrderAction     OrderAction     { get; init; }
+		public required decimal         ExpectedPrice   { get; init; }
+		public required decimal         BuyAmount       { get; init; }
 	}
 }

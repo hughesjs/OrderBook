@@ -1,6 +1,7 @@
 using AutoMapper;
 using OrderBookProtos.ServiceBases;
 using OrderBookService.Domain.Entities;
+using OrderBookService.Domain.Models.OrderBooks;
 using OrderBookService.Domain.Models.Orders;
 
 namespace OrderBookService.Application.Mapping;
@@ -9,9 +10,11 @@ public class EntityMappingProfile: Profile
 {
 	public EntityMappingProfile()
 	{
-		CreateMap<Domain.Models.OrderBooks.OrderBook, OrderBookEntity>()
-		   .ForMember(dest => dest.Orders, opt => opt.MapFrom(s => s.Orders.ToHashSet()))
-		   .ReverseMap();
+		CreateMap<OrderBook, OrderBookEntity>()
+		   .ForMember(dest => dest.Orders, opt => opt.MapFrom(s => s.Orders.ToHashSet()));
+
+		CreateMap<OrderBookEntity, OrderBook>()
+		   .ForMember(dest => dest.Orders, opt => opt.MapFrom(s => s.Orders));
 
 		CreateMap<Order, OrderEntity>().ReverseMap();
 		CreateMap<AddOrModifyOrderRequest, OrderEntity>()

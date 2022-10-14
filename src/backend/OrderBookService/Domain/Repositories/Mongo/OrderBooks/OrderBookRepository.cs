@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using OrderBookService.Application.Config;
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
+using OrderBookService.Domain.Models.OrderBooks;
 using OrderBookService.Exceptions;
 
 namespace OrderBookService.Domain.Repositories.Mongo.OrderBooks;
@@ -17,11 +18,11 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 		_logger = logger;
 	}
 
-	public override async Task<OrderBookEntity?> GetSingleAsync(AssetDefinition key)
+	public override async Task<OrderBookEntity> GetSingleAsync(AssetDefinition key)
 	{
 		IMongoCollection<OrderBookEntity> collection = GetCollection(key);
 		IAsyncCursor<OrderBookEntity> res = await collection.FindAsync(f => f.UnderlyingAsset == key);
-		return await res.SingleOrDefaultAsync();
+		return await res.SingleOrDefaultAsync() ?? throw new FailedToFindOrderBookException(key);
 	}
 
 	public override async Task<ReplaceOneResult> UpsertSingleAsync(OrderBookEntity orderBook)

@@ -5,6 +5,8 @@ using OrderBookProtos.CustomTypes;
 using OrderBookProtos.ServiceBases;
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
+using OrderBookService.Domain.Models.OrderBooks;
+using OrderBookService.Domain.Models.Orders;
 using OrderBookService.Domain.Repositories.Mongo.OrderBooks;
 
 
@@ -69,7 +71,6 @@ internal class OrderBookService: IOrderBookService
 	public async Task<OrderBookModificationResponse> RemoveOrder(RemoveOrderRequest request)
 	{
 		AssetDefinition assetDefinition = _mapper.Map<AssetDefinition>(request.AssetDefinition);
-		
 		DateTime    effectiveFrom = DateTime.UtcNow;
 
 		await _orderBookRepository.RemoveOrderFromBook(assetDefinition, request.OrderId.Value);
@@ -85,5 +86,53 @@ internal class OrderBookService: IOrderBookService
 			   };
 	}
 
-	public async Task<PriceResponse> GetPrice(GetPriceRequest getPriceRequest) =>  new() {Status = new() {IsSuccess = false, Message = "Not Yet Implemented"}, Price = new() { Units = 0, Nanos = 0}};
+	public async Task<PriceResponse> GetPrice(GetPriceRequest request)
+	{
+		AssetDefinition assetDefinition = _mapper.Map<AssetDefinition>(request.AssetDefinition);
+		DateTime        validAt   = DateTime.UtcNow;
+
+		OrderBookEntity orderBookEntity = await _orderBookRepository.GetSingleAsync(assetDefinition);
+		OrderBook orderBook = _mapper.Map<OrderBook>(orderBookEntity);
+
+		decimal costAccumulator          = 0;
+		decimal assetsLeftDecumulator    = request.Amount;
+
+		IOrderedEnumerable<Order> relevantOrders = orderBook.Where(o => o.OrderAction != request.OrderAction).OrderBy(o => o.Price);
+		
+		foreach (Order order in relevantOrders)
+		{
+			if (assetsLeftDecumulator - order.Amount < 0)
+			{
+				costAccumulator       += order.Price* assetsLeftDecumulator;
+				assetsLeftDecumulator =  0;
+				break;
+			}
+
+			costAccumulator       += order.Amount*order.Price;
+			assetsLeftDecumulator -= order.Amount;
+		}
+
+		
+		
+		return assetsLeftDecumulator == 0 ? new()
+										   {
+											   Price = costAccumulator,
+											   ValidAt = validAt.ToTimestamp(),
+											   Status = new()
+														{
+															IsSuccess = true,
+															Message   = "Successfully removed order"
+														}
+										   }
+										: new()
+										  {
+											  Price = 0,
+											  ValidAt = validAt.ToTimestamp(),
+											  Status = new()
+													   {
+														   IsSuccess = false,
+														   Message = "Unsatisfiable order"
+													   }
+										  };
+	}
 }
