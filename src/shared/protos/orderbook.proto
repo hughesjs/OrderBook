@@ -2,13 +2,14 @@ syntax = "proto3";
 
 import "Protos/customtypes/guid.proto";
 import "Protos/customtypes/decimal.proto";
-import "Protos/customtypes/assetclass.proto";
 import "Protos/customtypes/responsestatus.proto";
+import "Protos/customtypes/assetdefinition.proto";
+
 import "google/protobuf/timestamp.proto";
 
 package orderBook;
 
-option csharp_namespace = "OrderBookService.Protos.ServiceBases";
+option csharp_namespace = "OrderBookProtos.ServiceBases";
 
 service OrderBookService {
   rpc AddOrder (AddOrModifyOrderRequest) returns (OrderBookModificationResponse);
@@ -20,27 +21,29 @@ service OrderBookService {
 
 // The request message containing the user's name.
 message AddOrModifyOrderRequest {
-  customProtoTypes.Guid idempotencyKey = 1;
-  customProtoTypes.Guid orderId = 2;
-  customProtoTypes.AssetClassValue assetClass = 3;
+  customProtoTypes.GuidValue idempotencyKey = 1;
+  customProtoTypes.GuidValue orderId = 2;
+  customProtoTypes.AssetDefinitionValue assetDefinition = 3;
   customProtoTypes.DecimalValue amount = 4;
+  customProtoTypes.DecimalValue price = 5;
+  OrderAction orderAction = 6;
 }
 
 message RemoveOrderRequest {
-  customProtoTypes.Guid idempotencyKey = 1;
-  customProtoTypes.Guid orderId = 2;
-  customProtoTypes.AssetClassValue assetClass = 3;
+  customProtoTypes.GuidValue idempotencyKey = 1;
+  customProtoTypes.GuidValue orderId = 2;
+  customProtoTypes.AssetDefinitionValue assetDefinition = 3;
+}
+
+message GetPriceRequest {
+  customProtoTypes.AssetDefinitionValue assetDefinition = 1;
+  customProtoTypes.DecimalValue amount = 2;
+  OrderAction orderAction = 3;
 }
 
 message OrderBookModificationResponse {
   customProtoTypes.ResponseStatus status = 1;
   google.protobuf.Timestamp effectiveFrom = 2;
-}
-
-message GetPriceRequest {
-  customProtoTypes.ResponseStatus status = 1;
-  customProtoTypes.AssetClassValue assetClass = 2;
-  customProtoTypes.DecimalValue amount = 3;
 }
 
 message PriceResponse {
@@ -49,4 +52,8 @@ message PriceResponse {
    customProtoTypes.DecimalValue price = 3;
 }
 
+enum OrderAction {
+  Buy = 0;
+  Sell = 1;
+}
 

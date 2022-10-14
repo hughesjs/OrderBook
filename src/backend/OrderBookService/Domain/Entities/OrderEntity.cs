@@ -1,10 +1,14 @@
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using OrderBookProtos.ServiceBases;
 
-namespace OrderBookService.Domain.Models.Orders;
+namespace OrderBookService.Domain.Entities;
 
-internal record Order
+public record OrderEntity
 {
-	public required Guid        Id            { get; init; }
+	[BsonId]
+	[BsonRepresentation(BsonType.String)]
+	public required string		Id			  { get; init; }
 	public required decimal     Price         { get; init; }
 	public required decimal     Amount        { get; init; }
 	public required OrderAction OrderAction   { get; init; }

@@ -4,9 +4,9 @@ import "google/protobuf/wrappers.proto";
 
 package customProtoTypes;
 
-option csharp_namespace = "OrderBook.Protos.CustomTypes";
+option csharp_namespace = "OrderBookProtos.CustomTypes";
 
-message Guid {
+message GuidValue {
   google.protobuf.StringValue value = 1;
 }
 

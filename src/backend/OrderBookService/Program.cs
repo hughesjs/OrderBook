@@ -16,7 +16,6 @@ builder.ConfigureOrderBookServices();
 WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
-app.MapGrpcService<GreeterProtosService>();
 app.MapGrpcService<OrderBookProtosService>();
 
 if (app.Environment.IsDevelopment())

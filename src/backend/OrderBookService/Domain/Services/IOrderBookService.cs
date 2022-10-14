@@ -1,6 +1,6 @@
-using OrderBookService.Protos.ServiceBases;
+using OrderBookProtos.ServiceBases;
 
-namespace OrderBookService.Domain.Services.OrderBook;
+namespace OrderBookService.Domain.Services;
 
 public interface IOrderBookService
 {

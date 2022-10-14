@@ -7,20 +7,23 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <!-- Deliberately not making internals visible to the integration tests -->
+        <!-- Deliberately not making internals visible to the API tests -->
         <InternalsVisibleTo Include="OrderBookService.Tests" />
+        <!-- NSub in Unit Test project needs this -->
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
   
     <ItemGroup>
-        <Protobuf Include="Protos\customtypes\assetclass.proto" />
+        <Protobuf Include="Protos\customtypes\assetdefinition.proto" />
         <Protobuf Include="Protos\customtypes\decimal.proto" />
         <Protobuf Include="Protos\customtypes\guid.proto" />
-        <Protobuf Include="Protos\customtypes\responsestatus.proto" />        
-        <Protobuf Include="Protos\greet.proto" />
+        <Protobuf Include="Protos\customtypes\responsestatus.proto" />
         <Protobuf Include="Protos\orderbook.proto" />
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="AutoMapper" Version="12.0.0" />
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
         <PackageReference Include="Grpc.AspNetCore" Version="2.49.0" />
         <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.49.0" />
         <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
