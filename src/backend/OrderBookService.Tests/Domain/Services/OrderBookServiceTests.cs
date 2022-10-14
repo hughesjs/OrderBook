@@ -29,6 +29,88 @@ public class OrderBookServiceTests
 		_orderBookService        = new OrderBookService.Domain.Services.OrderBookService(GetMapper(), _mockOrderBookRepository);
 	}
 
+	[Fact]
+	internal async Task GivenTheExampleOrderBookThenPriceIsSuccessfullyCalculated()
+	{
+		AssetDefinition BtcUsd = new()
+								 {
+									 Class  = AssetClass.CoinPair,
+									 Symbol = "BTCUSD"
+								 };
+		OrderBookEntity obe = new()
+							  {
+								  UnderlyingAsset = BtcUsd,
+								  Orders = new()
+										   {
+											   new()
+											   {
+												   Price         = 30000,
+												   Amount        = 200,
+												   EffectiveTime = DateTime.UtcNow,
+												   Id            = Guid.NewGuid().ToString(),
+												   OrderAction   = OrderAction.Sell
+											   },
+											   new()
+											   {
+												   Price         = 31000,
+												   Amount        = 400,
+												   EffectiveTime = DateTime.UtcNow,
+												   Id            = Guid.NewGuid().ToString(),
+												   OrderAction   = OrderAction.Sell
+											   },
+											   new()
+											   {
+												   Price         = 32000,
+												   Amount        = 600,
+												   EffectiveTime = DateTime.UtcNow,
+												   Id            = Guid.NewGuid().ToString(),
+												   OrderAction   = OrderAction.Sell
+											   },
+											   new()
+											   {
+												   Price         = 29000,
+												   Amount        = 200,
+												   EffectiveTime = DateTime.UtcNow,
+												   Id            = Guid.NewGuid().ToString(),
+												   OrderAction   = OrderAction.Buy
+											   },
+											   new()
+											   {
+												   Price         = 28000,
+												   Amount        = 400,
+												   EffectiveTime = DateTime.UtcNow,
+												   Id            = Guid.NewGuid().ToString(),
+												   OrderAction   = OrderAction.Buy
+											   },
+											   new()
+											   {
+												   Price         = 27000,
+												   Amount        = 600,
+												   EffectiveTime = DateTime.UtcNow,
+												   Id            = Guid.NewGuid().ToString(),
+												   OrderAction   = OrderAction.Buy
+											   }
+										   }
+							  };
+		
+		_ = _mockOrderBookRepository.GetSingleAsync(Arg.Any<AssetDefinition>()).Returns(obe);
+		
+		GetPriceRequest req = new()
+							  {
+								  Amount = 300,
+								  AssetDefinition = new()
+													{
+														Class  = AssetClass.CoinPair,
+														Symbol = "BTCUSD"
+													},
+								  OrderAction = OrderAction.Buy
+							  };
+		
+		PriceResponse res = await _orderBookService.GetPrice(req);
+		
+		((decimal)res.Price).ShouldBe(30333.33m,0.01m);
+	}
+
 	[Theory]
 	[MemberData(nameof(GetPriceTestData), NumTests)]
 	internal async Task GivenAnOrderBookThenPriceIsSuccessfullyCalculated(GetPriceTestCase testCase)
@@ -164,7 +246,7 @@ public class OrderBookServiceTests
 			testCases.Add(new()
 						  {
 							  AmountWanted    = amount,
-							  ExpectedPrice   = priceMux* lowestPrice* amount,
+							  ExpectedPrice   = priceMux * lowestPrice,
 							  OrderBookEntity = orderBookEntity,
 							  OrderAction     = action
 						  });

@@ -114,11 +114,12 @@ internal class OrderBookService: IOrderBookService
 			assetsLeftDecumulator -= order.Amount;
 		}
 
+		decimal vwap = costAccumulator/request.Amount;
 		
 		
 		return assetsLeftDecumulator == 0 ? new()
 										   {
-											   Price = costAccumulator,
+											   Price = vwap,
 											   ValidAt = validAt.ToTimestamp(),
 											   Status = new()
 														{
