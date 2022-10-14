@@ -69,8 +69,9 @@ public class OrderBookServiceTests: ApiTestBase
 			OrderBookModificationResponse? res = await client.AddOrderAsync(req);
 			res.Status.IsSuccess.ShouldBe(true);
 
-			req.Price = AutoFixture.Create<DecimalValue>();
-			res = await client.ModifyOrderAsync(req);
+			req.Price          = AutoFixture.Create<DecimalValue>();
+			req.IdempotencyKey = new() {Value = Guid.NewGuid().ToString()};
+			res                = await client.ModifyOrderAsync(req);
 			
 			res.Status.IsSuccess.ShouldBe(true);
 		}
