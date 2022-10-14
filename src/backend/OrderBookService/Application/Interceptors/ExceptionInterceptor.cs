@@ -1,17 +1,22 @@
 using Grpc.Core;
-using Grpc.Core.Interceptors;
 using OrderBookProtos.CustomTypes;
 using OrderBookProtos.ServiceBases;
+using OrderBookService.Application.Misc;
+using StackExchange.Redis;
 
 namespace OrderBookService.Application.Interceptors;
 
-public class ExceptionInterceptor: Interceptor
+public class ExceptionInterceptor: InterceptorBase
 {
+	private readonly IConnectionMultiplexer        _redisMultiplexer;
+	private readonly IDatabaseAsync                _database;
 	private readonly ILogger<ExceptionInterceptor> _logger;
  
-	public ExceptionInterceptor(ILogger<ExceptionInterceptor> logger)
+	public ExceptionInterceptor(IConnectionMultiplexer redisMultiplexer , ILogger<ExceptionInterceptor> logger)
 	{
-		_logger = logger;
+		_redisMultiplexer = redisMultiplexer;
+		_database         = _redisMultiplexer.GetDatabase();
+		_logger           = logger;
 	}
      
 	public override async Task<TResponse> UnaryServerHandler<TRequest, TResponse>(
@@ -27,7 +32,9 @@ public class ExceptionInterceptor: Interceptor
 		{
 			_logger.LogError(exception, exception.Message);
 
-			ResponseStatus responseStatus = new ResponseStatus()
+			await WipeIdempotencyKey(request);
+			
+			ResponseStatus responseStatus = new()
 											{
 												IsSuccess = false,
 												// If this API was exposed publicly, we might want to make this a generic message
@@ -37,14 +44,13 @@ public class ExceptionInterceptor: Interceptor
 			return MapResponse<TRequest, TResponse>(responseStatus);
 		}
 	}
-	
-				
-	private TResponse MapResponse<TRequest, TResponse>(ResponseStatus responseStatus)
+
+	private async Task WipeIdempotencyKey<TRequest>(TRequest request) where TRequest : class
 	{
-		var concreteResponse = Activator.CreateInstance<TResponse>();
-        
-		concreteResponse?.GetType().GetProperty(nameof(PriceResponse.Status))?.SetValue(concreteResponse, responseStatus);
+		if (typeof(TRequest).GetProperty(nameof(AddOrModifyOrderRequest.IdempotencyKey))?.GetValue(request) is not string idempotencyKey) return;
 		
-		return concreteResponse;
+		_logger.LogInformation("Clearing idempotency key due to exception for {@Request}", request);
+
+		await _database.KeyDeleteAsync($"{StaticStrings.IdempotencyPrefix}{idempotencyKey}");
 	}
 }

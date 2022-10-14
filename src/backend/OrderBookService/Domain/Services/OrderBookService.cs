@@ -1,6 +1,7 @@
 using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
 using OrderBookProtos.ServiceBases;
+using OrderBookService.Application.Misc;
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
 using OrderBookService.Domain.Models.OrderBooks;
@@ -40,7 +41,7 @@ internal class OrderBookService : IOrderBookService
 				   Status = new()
 							{
 								IsSuccess = true,
-								Message   = "Successfully added order"
+								Message   = StaticStrings.SuccessMessage
 							}
 			   };
 	}
@@ -60,7 +61,7 @@ internal class OrderBookService : IOrderBookService
 				   Status = new()
 							{
 								IsSuccess = true,
-								Message   = "Successfully modified order"
+								Message   = StaticStrings.SuccessMessage
 							}
 			   };
 	}
@@ -78,7 +79,7 @@ internal class OrderBookService : IOrderBookService
 				   Status = new()
 							{
 								IsSuccess = true,
-								Message   = "Successfully removed order"
+								Message   = StaticStrings.SuccessMessage
 							}
 			   };
 	}
@@ -108,7 +109,7 @@ internal class OrderBookService : IOrderBookService
 						 Status = new()
 								  {
 									  IsSuccess = true,
-									  Message   = "Successfully removed order"
+									  Message   = StaticStrings.SuccessMessage
 								  }
 					 }
 				   : new()
@@ -118,7 +119,7 @@ internal class OrderBookService : IOrderBookService
 						 Status = new()
 								  {
 									  IsSuccess = false,
-									  Message   = "Unsatisfiable order"
+									  Message   = StaticStrings.UnsatisfiableOrderMessage
 								  }
 					 };
 	}

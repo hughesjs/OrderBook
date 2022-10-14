@@ -6,10 +6,15 @@ using OrderBookService.Services.ProtosServices;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddGrpc(c=>c.Interceptors.Add<ExceptionInterceptor>());
+builder.Services.AddGrpc(c =>
+						 {
+							 c.Interceptors.Add<ExceptionInterceptor>();
+							 c.Interceptors.Add<IdempotencyInterceptor>();
+						 }
+						);
 builder.Services.AddGrpcReflection();
 
-builder.Services.AddOrderBookServices();
+builder.Services.AddOrderBookServices(builder.Configuration);
 
 builder.ConfigureOrderBookServices();
 
