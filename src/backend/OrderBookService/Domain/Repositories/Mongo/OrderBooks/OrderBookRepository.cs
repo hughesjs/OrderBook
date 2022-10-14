@@ -57,11 +57,61 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 		await HandleAddOrderHotPathBadResult(asset, order, collection);
 	}
 
-	public async Task ModifyOrderInOrderBook(AssetDefinition asset, OrderEntity order)   => throw new NotImplementedException();
-	public async Task RemoveOrderFromBook(AssetDefinition    asset, string      orderId) => throw new NotImplementedException();
+	public async Task ModifyOrderInOrderBook(AssetDefinition asset, OrderEntity order)
+	{
+		// This isn't ideal, could do without the read, alter, write...
+		OrderBookEntity                    entity     = await GetSingleAsync(asset);
+		int                                index      = entity.Orders.Select(o => o.Id).ToList().IndexOf(order.Id);
+		UpdateDefinition<OrderBookEntity>? update     = Builders<OrderBookEntity>.Update.Set(x => x.Orders[index], order);
+		IMongoCollection<OrderBookEntity>  collection = GetCollection(asset);
+		UpdateResult?                      res        = await collection.UpdateOneAsync(f => f.UnderlyingAsset == asset, update);
+		bool                               success    = (res is not null && res.ModifiedCount > 0);
 
-	
-	
+		if (success)
+		{
+			return;
+		}
+
+		await HandleUpdateOrderBadResult(asset, order.Id, collection);
+	}
+
+	private async Task HandleUpdateOrderBadResult(AssetDefinition asset, string orderId, IMongoCollection<OrderBookEntity> collection)
+	{
+		if (!(await CollectionExistsAsync(asset.Class.ToString()) && await OrderBookExists(asset, collection)))
+		{
+			throw new FailedToDeleteOrderException("Failed to update order, OrderBook does not exist", orderId, asset);
+		}
+		throw new FailedToDeleteOrderException("Failed to update order, OrderId does not exist", orderId, asset);
+	}
+
+	public async Task RemoveOrderFromBook(AssetDefinition asset, string orderId)
+	{
+		UpdateDefinition<OrderBookEntity> update     = Builders<OrderBookEntity>.Update.PullFilter(o => o.Orders, oef => oef.Id == orderId);
+		IMongoCollection<OrderBookEntity> collection = GetCollection(asset);
+		UpdateResult?                     res        = await collection.UpdateOneAsync(f => f.UnderlyingAsset == asset, update);
+
+		bool success = res is not null && res.ModifiedCount > 0;
+		
+		if (success)
+		{
+			return;
+		}
+		
+		await HandleDeleteOrderBadResult(asset, orderId, collection);
+	}
+
+	private async Task HandleDeleteOrderBadResult(AssetDefinition asset, string orderId, IMongoCollection<OrderBookEntity> collection)
+	{
+		if (!(await CollectionExistsAsync(asset.Class.ToString()) && await OrderBookExists(asset, collection)))
+		{
+			throw new FailedToDeleteOrderException("Failed to delete order, OrderBook does not exist", orderId, asset);
+		}
+		throw new FailedToDeleteOrderException("Failed to delete order, OrderId does not exist", orderId, asset);
+	}
+
+	private async Task<bool> OrderBookExists(AssetDefinition asset, IMongoCollection<OrderBookEntity> collection) => await (await collection.FindAsync(d => d.UnderlyingAsset == asset)).AnyAsync();
+
+
 	private IMongoCollection<OrderBookEntity> GetCollection(AssetDefinition asset) => Database.GetCollection<OrderBookEntity>(asset.Class.ToString());
 
 	private async Task HandleAddOrderHotPathBadResult(AssetDefinition asset, OrderEntity order, IMongoCollection<OrderBookEntity> collection)
