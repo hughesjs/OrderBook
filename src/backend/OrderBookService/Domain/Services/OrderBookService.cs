@@ -3,7 +3,6 @@ using MongoDB.Driver;
 using OrderBookProtos.ServiceBases;
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
-using OrderBookService.Domain.Models.OrderBooks;
 using OrderBookService.Domain.Models.Orders;
 using OrderBookService.Domain.Repositories.Mongo.OrderBooks;
 
@@ -23,19 +22,9 @@ internal class OrderBookService: IOrderBookService
 	public async Task<OrderBookModificationResponse> AddOrder(AddOrModifyOrderRequest request)
 	{
 		AssetDefinition assetDefinition = _mapper.Map<AssetDefinition>(request.AssetDefinition);
-		Order           requestedOrder  = _mapper.Map<Order>(request);
+		OrderEntity     orderEntity     = _mapper.Map<OrderEntity>(request);
 
-		OrderBookEntity readOrderBookEntity = await _orderBookRepository.GetSingleAsync(assetDefinition) ?? new OrderBookEntity
-																										{
-																											Orders = new(),
-																											UnderlyingAsset = assetDefinition
-																										};
-		OrderBook orderBook = _mapper.Map<OrderBook>(readOrderBookEntity);
-		orderBook.Add(requestedOrder with {EffectiveTime = DateTime.UtcNow});
-
-		OrderBookEntity orderBookEntityToSave = _mapper.Map<OrderBookEntity>(orderBook);
-
-		ReplaceOneResult res = await _orderBookRepository.UpsertSingleAsync(orderBookEntityToSave);
+		UpdateResult res = await _orderBookRepository.AddOrderToOrderBook(assetDefinition, orderEntity);
 
 		return new() {Status = new() {IsSuccess = res.IsAcknowledged, Message = res.IsAcknowledged ? "Success" : "Failed to alter order-book"}};
 	}

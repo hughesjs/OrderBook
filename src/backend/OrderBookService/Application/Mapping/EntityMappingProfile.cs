@@ -1,4 +1,5 @@
 using AutoMapper;
+using OrderBookProtos.ServiceBases;
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Orders;
 
@@ -13,5 +14,8 @@ public class EntityMappingProfile: Profile
 		   .ReverseMap();
 
 		CreateMap<Order, OrderEntity>().ReverseMap();
+		CreateMap<AddOrModifyOrderRequest, OrderEntity>()
+		   .ForMember(dest => dest.Id, opt => opt.MapFrom(s => s.OrderId.Value))
+		   .ForMember(dest => dest.EffectiveTime, opt => opt.Ignore());
 	}
 }

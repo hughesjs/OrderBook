@@ -6,6 +6,7 @@ namespace OrderBookService.Domain.Repositories.Mongo.OrderBooks;
 
 internal interface IOrderBookRepository
 {
-	public Task<OrderBookEntity?>  GetSingleAsync(AssetDefinition key);
-	public Task<ReplaceOneResult> UpsertSingleAsync(OrderBookEntity orderBook);
+	public Task<OrderBookEntity?> GetSingleAsync(AssetDefinition      key);
+	public Task<ReplaceOneResult> UpsertSingleAsync(OrderBookEntity   orderBook);
+	public Task<UpdateResult>     AddOrderToOrderBook(AssetDefinition asset, OrderEntity order);
 }

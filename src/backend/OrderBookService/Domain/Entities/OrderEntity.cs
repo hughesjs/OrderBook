@@ -4,7 +4,7 @@ using OrderBookProtos.ServiceBases;
 
 namespace OrderBookService.Domain.Entities;
 
-public class OrderEntity
+public record OrderEntity
 {
 	[BsonId]
 	[BsonRepresentation(BsonType.String)]

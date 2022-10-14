@@ -1,11 +1,10 @@
 using MongoDB.Bson.Serialization.Attributes;
 using OrderBookService.Domain.Models.Assets;
-using OrderBookService.Domain.Models.Orders;
 
 namespace OrderBookService.Domain.Entities;
 
 
-internal class OrderBookEntity
+internal record OrderBookEntity
 {
 	[BsonId]
 	public required AssetDefinition UnderlyingAsset { get; init; }
