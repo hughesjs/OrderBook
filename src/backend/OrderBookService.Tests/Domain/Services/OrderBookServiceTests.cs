@@ -50,27 +50,28 @@ public class OrderBookServiceTests
 		(DateTime.UtcNow - res.EffectiveFrom.ToDateTime()).ShouldBeLessThan(TimeSpan.FromSeconds(10));
 	}
 
-	// [Theory]
-	// [MemberData(nameof(GetModifyOrderRequests), NumTests)]
-	// public async Task WhenOrderIsModifiedSuccessfullyThenItReturnsSuccess(AddOrModifyOrderRequest request)
-	// {
-	// 	_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
-	// 	
-	// 	OrderBookModificationResponse res = await _orderBookService.ModifyOrder(request);
-	// 	
-	// 	res.Status.IsSuccess.ShouldBe(true);
-	// }
+	[Theory]
+	[MemberData(nameof(GetModifyOrderRequests), NumTests)]
+	public async Task WhenOrderIsModifiedSuccessfullyThenItReturnsSuccess(AddOrModifyOrderRequest request)
+	{
+		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
+		
+		OrderBookModificationResponse res = await _orderBookService.ModifyOrder(request);
+		
+		res.Status.IsSuccess.ShouldBe(true);
+	}
 	
-	// [Theory]
-	// [MemberData(nameof(GetModifyOrderRequests), NumTests)]
-	// public async Task WhenOrderIsModifiedSuccessfullyThenEffectiveTimeIsSetToUtcNow(AddOrModifyOrderRequest request)
-	// {
-	// 	_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
-	// 	
-	// 	OrderBookModificationResponse res = await _orderBookService.ModifyOrder(request);
-	// 	
-	// 	res.Status.IsSuccess.ShouldBe(true);
-	// }
+	[Theory]
+	[MemberData(nameof(GetModifyOrderRequests), NumTests)]
+	public async Task WhenOrderIsModifiedSuccessfullyThenEffectiveTimeIsSetToUtcNow(AddOrModifyOrderRequest request)
+	{
+		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
+		
+		OrderBookModificationResponse res = await _orderBookService.ModifyOrder(request);
+		
+		res.Status.IsSuccess.ShouldBe(true);
+	}
+	
 	//
 	// [Theory]
 	// [MemberData(nameof(GetRemoveOrderRequests), NumTests)]

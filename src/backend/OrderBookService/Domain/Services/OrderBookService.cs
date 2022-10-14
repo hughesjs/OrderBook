@@ -46,9 +46,27 @@ internal class OrderBookService: IOrderBookService
 			   };
 	}
 
-	public async Task<OrderBookModificationResponse> RemoveOrder(RemoveOrderRequest request) =>  new() {Status = new() {IsSuccess = false, Message = "Not Yet Implemented"}};
+	public async Task<OrderBookModificationResponse> ModifyOrder(AddOrModifyOrderRequest request)
+	{
+		AssetDefinition assetDefinition = _mapper.Map<AssetDefinition>(request.AssetDefinition);
+		
+		DateTime    effectiveFrom = DateTime.UtcNow;
+		OrderEntity orderEntity   = _mapper.Map<OrderEntity>(request) with {EffectiveTime = effectiveFrom};
 
-	public async Task<OrderBookModificationResponse> ModifyOrder(AddOrModifyOrderRequest request) => new() {Status = new() {IsSuccess = false, Message = "Not Yet Implemented"}};
+		await _orderBookRepository.ModifyOrderInOrderBook(assetDefinition, orderEntity);
+		
+		return new()
+			   {
+				   EffectiveFrom = effectiveFrom.ToTimestamp(),
+				   Status = new()
+							{
+								IsSuccess = true,
+								Message   = "Successfully modified order"
+							}
+			   };
+	}
+	
+	public async Task<OrderBookModificationResponse> RemoveOrder(RemoveOrderRequest request) =>  new() {Status = new() {IsSuccess = false, Message = "Not Yet Implemented"}};
 
 	public async Task<PriceResponse> GetPrice(GetPriceRequest getPriceRequest) =>  new() {Status = new() {IsSuccess = false, Message = "Not Yet Implemented"}, Price = new() { Units = 0, Nanos = 0}};
 }
