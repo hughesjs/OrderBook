@@ -1,3 +1,4 @@
+using System.Numerics;
 using AutoFixture;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
@@ -171,8 +172,8 @@ public class OrderBookServiceTests
 						  });
 		
 		}
-
-		// Add simple sellside cases where everything is covered by one order
+		
+		// // Add simple sellside cases where everything is covered by one order
 		for (int i = 0; i < testsPerClass; i++)
 		{
 			decimal sellAmount   = PositiveDecimal();
@@ -210,7 +211,38 @@ public class OrderBookServiceTests
 		}
 
 		// Add complex buyside cases where multiple orders are needed
-		for (int i = 0; i < testsPerClass; i++) { }
+		for (int i = 0; i < testsPerClass; i++)
+		{
+			decimal   buyAmount          = PositiveDecimal();
+			decimal   lowestPrice        = PositiveDecimal();
+			decimal[] amountCoefficients = GetAmountCoefficients();
+			decimal[] priceCoefficients  = GetPriceCoefficients();
+
+			decimal priceMux = DotProduct(amountCoefficients, priceCoefficients);
+
+			List<OrderEntity> orders = amountCoefficients.Select((t, j) => new OrderEntity
+																		   {
+																			   Id            = Guid.NewGuid().ToString(),
+																			   Amount        = buyAmount*t,
+																			   EffectiveTime = DateTime.Today,
+																			   OrderAction   = OrderAction.Sell,
+																			   Price         = lowestPrice*priceCoefficients[j]
+																		   })
+														 .ToList();
+
+			OrderBookEntity orderBookEntity = new()
+											  {
+												  UnderlyingAsset = assetDefinition,
+												  Orders = orders
+											  };
+			testCases.Add(new()
+						  {
+							  AmountWanted    = buyAmount,
+							  ExpectedPrice   = priceMux * lowestPrice * buyAmount,
+							  OrderBookEntity = orderBookEntity,
+							  OrderAction     = OrderAction.Buy
+						  });
+		}
 
 		// Add complex sellside cases where multiple orders are needed
 		for (int i = 0; i < testsPerClass; i++) { }
@@ -227,6 +259,18 @@ public class OrderBookServiceTests
 	}
 
 	private static decimal PositiveDecimal() => decimal.Abs(Fixture.Create<decimal>());
+
+	private static decimal[] GetAmountCoefficients()
+	{
+		decimal thetaOne   = PositiveDecimal()% 1* PositiveDecimal()% 1;                   
+		decimal thetaTwo   = (1 - thetaOne) * (PositiveDecimal()% 1);
+		decimal thetaThree = 1 - thetaOne - thetaTwo;
+		return new[] {thetaOne, thetaTwo, thetaThree};
+	}
+
+	private static decimal[] GetPriceCoefficients() => new[] {PositiveDecimal(), PositiveDecimal(), PositiveDecimal()};
+
+	private static decimal DotProduct(decimal[] a, decimal[] b) => a.Select((t, i) => t*b[i]).Sum();
 
 
 	internal class GetPriceTestCase
