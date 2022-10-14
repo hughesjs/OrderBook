@@ -211,6 +211,8 @@ public class OrderBookServiceTests
 		}
 
 		// Add complex buyside cases where multiple orders are needed
+		// This is admittedly more complex than I'd usually make a test-case
+		// But I was having fun, and it's mathematically rigourous
 		for (int i = 0; i < testsPerClass; i++)
 		{
 			decimal   buyAmount          = PositiveDecimal();
@@ -223,7 +225,7 @@ public class OrderBookServiceTests
 			List<OrderEntity> orders = amountCoefficients.Select((t, j) => new OrderEntity
 																		   {
 																			   Id            = Guid.NewGuid().ToString(),
-																			   Amount        = buyAmount*t,
+																			   Amount        = j != j - 1 ? buyAmount*t : buyAmount*t + 0.5m, // Ensure there's a surplus
 																			   EffectiveTime = DateTime.Today,
 																			   OrderAction   = OrderAction.Sell,
 																			   Price         = lowestPrice*priceCoefficients[j]
@@ -245,7 +247,38 @@ public class OrderBookServiceTests
 		}
 
 		// Add complex sellside cases where multiple orders are needed
-		for (int i = 0; i < testsPerClass; i++) { }
+		for (int i = 0; i < testsPerClass; i++)
+		{
+			decimal   sellAmount          = PositiveDecimal();
+			decimal   highestPrice        = PositiveDecimal();
+			decimal[] amountCoefficients = GetAmountCoefficients();
+			decimal[] priceCoefficients  = GetPriceCoefficients();
+
+			decimal priceMux = DotProduct(amountCoefficients, priceCoefficients);
+
+			List<OrderEntity> orders = amountCoefficients.Select((t, j) => new OrderEntity
+																		   {
+																			   Id            = Guid.NewGuid().ToString(),
+																			   Amount        = j != j - 1 ? sellAmount*t : sellAmount*t + 0.5m, // Ensure there's a surplus
+																			   EffectiveTime = DateTime.Today,
+																			   OrderAction   = OrderAction.Buy,
+																			   Price         = highestPrice*priceCoefficients[j]
+																		   })
+														 .ToList();
+
+			OrderBookEntity orderBookEntity = new()
+											  {
+												  UnderlyingAsset = assetDefinition,
+												  Orders          = orders
+											  };
+			testCases.Add(new()
+						  {
+							  AmountWanted    = sellAmount,
+							  ExpectedPrice   = priceMux* highestPrice* sellAmount,
+							  OrderBookEntity = orderBookEntity,
+							  OrderAction     = OrderAction.Sell
+						  });
+		}
 
 		return testCases.Select(tc => new object[] {tc});
 	}
