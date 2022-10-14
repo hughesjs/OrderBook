@@ -9,7 +9,7 @@ namespace OrderBookService.ApiTests;
 public class OrderBookServiceTests: ApiTestBase
 {
 	// This is rubbish, issue 25 looks at avoiding relying on extant db state
-	//TODO: Once #25 is sorted, consider reading out at end of all tests to check the content of the db
+	//TODO: Once #17 is sorted add unhappy handling
 	
 	private const int NumTestEntries = 25;
 	
@@ -38,9 +38,6 @@ public class OrderBookServiceTests: ApiTestBase
 			OrderBookModificationResponse? res = await client.AddOrderAsync(req);
 			res.Status.IsSuccess.ShouldBe(true);
 		}
-		
-		//TODO: Read back
-
 	}
 
 	[Fact]
@@ -56,8 +53,6 @@ public class OrderBookServiceTests: ApiTestBase
 			OrderBookModificationResponse? res = await client.AddOrderAsync(req);
 			res.Status.IsSuccess.ShouldBe(true);
 		}
-		
-		//TODO: Read back
 	}
 	
 	
@@ -79,8 +74,6 @@ public class OrderBookServiceTests: ApiTestBase
 			
 			res.Status.IsSuccess.ShouldBe(true);
 		}
-		
-		//TODO: Read back
 	}
 	
 	[Fact]
@@ -107,8 +100,6 @@ public class OrderBookServiceTests: ApiTestBase
 			
 			res.Status.IsSuccess.ShouldBe(true);
 		}
-		
-		//TODO: Read back
 	}
 	
 	[Fact]
