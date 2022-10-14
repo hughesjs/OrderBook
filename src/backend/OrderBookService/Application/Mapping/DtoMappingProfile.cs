@@ -1,4 +1,5 @@
 using AutoMapper;
+using JetBrains.Annotations;
 using OrderBookProtos.CustomTypes;
 using OrderBookProtos.ServiceBases;
 using OrderBookService.Domain.Models.Assets;
@@ -6,6 +7,7 @@ using OrderBookService.Domain.Models.Orders;
 
 namespace OrderBookService.Application.Mapping;
 
+[UsedImplicitly]
 public class DtoMappingProfile: Profile
 {
 	public DtoMappingProfile()

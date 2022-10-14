@@ -3,7 +3,6 @@ using MongoDB.Driver;
 using OrderBookService.Application.Config;
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
-using OrderBookService.Domain.Models.OrderBooks;
 using OrderBookService.Exceptions;
 
 namespace OrderBookService.Domain.Repositories.Mongo.OrderBooks;
@@ -43,6 +42,10 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 	public async Task AddOrderToOrderBook(AssetDefinition asset, OrderEntity order)
 	{
 		_logger.LogDebug("Attempting to add {OrderId} to {@Asset}", order.Id, asset);
+		
+		// Note: there is a problem with the Mongo driver https://jira.mongodb.org/browse/SERVER-1068 that's preventing it from enforcing uniqueness constraints
+		// On subobjects... We could test to see if they exist here, but since OrderIds should be unique and idempotency keys are in use, I don't think the slow
+		// Down is worth it for now
 		UpdateDefinition<OrderBookEntity> update     = Builders<OrderBookEntity>.Update.AddToSet(o => o.Orders, order);
 		IMongoCollection<OrderBookEntity> collection = GetCollection(asset);
 		UpdateResult?                     res        = await collection.UpdateOneAsync(f => f.UnderlyingAsset == asset, update);
@@ -122,7 +125,7 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 
 		if (await docRes.AnyAsync())
 		{
-			throw new FailedToAddOrderException("Order didn't add despite the document already existing, this could be because the Order Id is a duplicate", asset, order);
+			throw new FailedToAddOrderException("Order didn't add despite the document already existing", asset, order);
 		}
 		
 		_logger.LogInformation("Document for {AssetClass} not found, creating a new one", asset.Class);

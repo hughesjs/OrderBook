@@ -1,5 +1,4 @@
 using MongoDB.Driver;
-using OrderBookProtos.CustomTypes;
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
 

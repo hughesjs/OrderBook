@@ -1,4 +1,3 @@
-using System.Numerics;
 using AutoFixture;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
@@ -130,7 +129,7 @@ public class OrderBookServiceTests
 		
 		PriceResponse res = await _orderBookService.GetPrice(req);
 		
-		((decimal)res.Price).ShouldBe(testCase.ExpectedPrice);
+		((decimal)res.Price).ShouldBe(testCase.ExpectedPrice, 0.1m);
 	}
 
 	// [Theory]
@@ -224,14 +223,14 @@ public class OrderBookServiceTests
 			decimal     amount             = PositiveDecimal();
 			decimal     lowestPrice        = PositiveDecimal();
 			decimal[]   amountCoefficients = GetAmountCoefficients();
-			decimal[]   priceCoefficients  = GetPriceCoefficients();
+			decimal[]   priceCoefficients  = GetPriceCoefficients(action == OrderAction.Buy);
 
 			decimal priceMux = DotProduct(amountCoefficients, priceCoefficients);
 
 			List<OrderEntity> orders = amountCoefficients.Select((t, j) => new OrderEntity
 																		   {
 																			   Id            = Guid.NewGuid().ToString(),
-																			   Amount        = j != j - 1 ? amount*t : amount*t + 0.5m, // Ensure there's a surplus
+																			   Amount        = j != amountCoefficients.Length - 1 ? amount * t : amount * t + 0.5m, // Ensure there's a surplus
 																			   EffectiveTime = DateTime.Today,
 																			   OrderAction   = action == OrderAction.Buy ? OrderAction.Sell : OrderAction.Buy,
 																			   Price         = lowestPrice*priceCoefficients[j]
@@ -268,13 +267,14 @@ public class OrderBookServiceTests
 
 	private static decimal[] GetAmountCoefficients()
 	{
-		decimal thetaOne   = PositiveDecimal()% 1* PositiveDecimal()% 1;                   
-		decimal thetaTwo   = (1 - thetaOne) * (PositiveDecimal()% 1);
-		decimal thetaThree = 1 - thetaOne - thetaTwo;
+		decimal thetaOne   = (decimal)Random.Shared.NextDouble();                   
+		decimal thetaTwo   = (1m - thetaOne) * (decimal)Random.Shared.NextDouble();
+		decimal thetaThree = 1m - thetaOne - thetaTwo;
 		return new[] {thetaOne, thetaTwo, thetaThree};
 	}
 
-	private static decimal[] GetPriceCoefficients() => new[] {PositiveDecimal(), PositiveDecimal(), PositiveDecimal()};
+	private static decimal[] GetPriceCoefficients(bool isBuy) => isBuy ? new[] {PositiveDecimal(), PositiveDecimal(), PositiveDecimal()}.OrderBy(d => d).ToArray()
+																	 : new [] {PositiveDecimal(), PositiveDecimal(), PositiveDecimal()}.OrderByDescending(d => d).ToArray();
 
 	private static decimal DotProduct(decimal[] a, decimal[] b) => a.Select((t, i) => t*b[i]).Sum();
 

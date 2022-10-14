@@ -1,4 +1,3 @@
-using System.ComponentModel.Design;
 using AutoMapper;
 
 namespace OrderBookService.Tests.Application.Mapping;
@@ -11,7 +10,6 @@ public class AutoMapperProfileValidationTests
 	{
 		MapperConfiguration config = new(c => c.AddProfile(profile));
 		config.AssertConfigurationIsValid();
-		
 	}
 
 	public static IEnumerable<object[]> ProfileDataGenerator => typeof(Program).Assembly.GetTypes()

@@ -17,8 +17,7 @@
         <Protobuf Include="Protos\customtypes\assetdefinition.proto" />
         <Protobuf Include="Protos\customtypes\decimal.proto" />
         <Protobuf Include="Protos\customtypes\guid.proto" />
-        <Protobuf Include="Protos\customtypes\responsestatus.proto" />        
-        <Protobuf Include="Protos\greet.proto" />
+        <Protobuf Include="Protos\customtypes\responsestatus.proto" />
         <Protobuf Include="Protos\orderbook.proto" />
     </ItemGroup>
 
