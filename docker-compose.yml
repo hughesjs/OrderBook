@@ -2,7 +2,7 @@
 # in a secret store and then injected by the deployment pipeline... This is fine for
 # demo purposes though
 
-version: '3.1'
+version: "3.1"
 
 services:
 
@@ -26,3 +26,10 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://root:pass@mongo:27017/
     depends_on:
       - mongo
+
+  redis:
+    image: "bitnami/redis:latest"
+    ports:
+      - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
