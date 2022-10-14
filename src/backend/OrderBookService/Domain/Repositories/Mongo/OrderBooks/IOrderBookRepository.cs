@@ -8,5 +8,7 @@ internal interface IOrderBookRepository
 {
 	public Task<OrderBookEntity?> GetSingleAsync(AssetDefinition      key);
 	public Task<ReplaceOneResult> UpsertSingleAsync(OrderBookEntity   orderBook);
-	public Task<UpdateResult>     AddOrderToOrderBook(AssetDefinition asset, OrderEntity order);
+	public Task AddOrderToOrderBook(AssetDefinition asset, OrderEntity order);
+	
+	public Task ModifyOrderInOrderBook(AssetDefinition asset, OrderEntity order);
 }

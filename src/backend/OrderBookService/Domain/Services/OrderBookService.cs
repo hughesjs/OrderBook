@@ -1,9 +1,10 @@
 using AutoMapper;
+using Google.Protobuf.WellKnownTypes;
 using MongoDB.Driver;
+using OrderBookProtos.CustomTypes;
 using OrderBookProtos.ServiceBases;
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
-using OrderBookService.Domain.Models.Orders;
 using OrderBookService.Domain.Repositories.Mongo.OrderBooks;
 
 
@@ -13,20 +14,36 @@ internal class OrderBookService: IOrderBookService
 {
 	private readonly IMapper              _mapper;
 	private readonly IOrderBookRepository _orderBookRepository;
+
+	
+	
 	public OrderBookService(IMapper mapper, IOrderBookRepository orderBookRepository)
 	{
 		_mapper = mapper;
 		_orderBookRepository = orderBookRepository;
 	}
 
+	// NB: Failure states are to be handled by the exception interceptor.
+	//     The repo handles anticipated failure states before rethrowing if necessary.
+	
 	public async Task<OrderBookModificationResponse> AddOrder(AddOrModifyOrderRequest request)
 	{
 		AssetDefinition assetDefinition = _mapper.Map<AssetDefinition>(request.AssetDefinition);
-		OrderEntity     orderEntity     = _mapper.Map<OrderEntity>(request);
+		
+		DateTime        effectiveFrom   = DateTime.UtcNow;
+		OrderEntity     orderEntity     = _mapper.Map<OrderEntity>(request) with {EffectiveTime = effectiveFrom};
 
-		UpdateResult res = await _orderBookRepository.AddOrderToOrderBook(assetDefinition, orderEntity);
-
-		return new() {Status = new() {IsSuccess = res.IsAcknowledged, Message = res.IsAcknowledged ? "Success" : "Failed to alter order-book"}};
+		await _orderBookRepository.AddOrderToOrderBook(assetDefinition, orderEntity);
+		
+		return new()
+			   {
+				   EffectiveFrom = effectiveFrom.ToTimestamp(),
+				   Status = new()
+							{
+								IsSuccess = true,
+								Message = "Successfully added order"
+							}
+			   };
 	}
 
 	public async Task<OrderBookModificationResponse> RemoveOrder(RemoveOrderRequest request) =>  new() {Status = new() {IsSuccess = false, Message = "Not Yet Implemented"}};

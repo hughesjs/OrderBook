@@ -39,7 +39,7 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 	/// <param name="asset">Asset class the order pertains to</param>
 	/// <param name="order">The order parameters</param>
 	/// <returns></returns>
-	public async Task<UpdateResult> AddOrderToOrderBook(AssetDefinition asset, OrderEntity order)
+	public async Task AddOrderToOrderBook(AssetDefinition asset, OrderEntity order)
 	{
 		_logger.LogDebug("Attempting to add {OrderId} to {@Asset}", order.Id, asset);
 		UpdateDefinition<OrderBookEntity> update     = Builders<OrderBookEntity>.Update.AddToSet(o => o.Orders, order);
@@ -50,15 +50,17 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 		if (success)
 		{
 			_logger.LogDebug("Successfully added {OrderId} to {@Asset}", order.Id, asset);
-			return res;
+			return;
 		}
 		
-		return await HandleAddOrderHotPathBadResult(asset, order, collection);
+		await HandleAddOrderHotPathBadResult(asset, order, collection);
 	}
+
+	public async Task ModifyOrderInOrderBook(AssetDefinition asset, OrderEntity order) => throw new NotImplementedException();
 
 	private IMongoCollection<OrderBookEntity> GetCollection(AssetDefinition asset) => Database.GetCollection<OrderBookEntity>(asset.Class.ToString());
 
-	private async Task<UpdateResult> HandleAddOrderHotPathBadResult(AssetDefinition asset, OrderEntity order, IMongoCollection<OrderBookEntity> collection)
+	private async Task HandleAddOrderHotPathBadResult(AssetDefinition asset, OrderEntity order, IMongoCollection<OrderBookEntity> collection)
 	{
 		_logger.LogInformation("Failed to add order to {Document} list directly, checking if document exists...", asset.Class);
 		
@@ -77,7 +79,7 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 							  };
 		ReplaceOneResult upsertRes = await UpsertSingleAsync(obe);
 
-		if (upsertRes.IsAcknowledged) return new UpdateResult.Acknowledged(upsertRes.MatchedCount, upsertRes.ModifiedCount, upsertRes.UpsertedId);
+		if (upsertRes.IsAcknowledged) return;
 
 		throw new FailedToAddOrderException("Order failed to add for unknown reason", asset, order);
 	}

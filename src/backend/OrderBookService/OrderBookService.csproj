@@ -7,8 +7,10 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <!-- Deliberately not making internals visible to the integration tests -->
+        <!-- Deliberately not making internals visible to the API tests -->
         <InternalsVisibleTo Include="OrderBookService.Tests" />
+        <!-- NSub in Unit Test project needs this -->
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
   
     <ItemGroup>

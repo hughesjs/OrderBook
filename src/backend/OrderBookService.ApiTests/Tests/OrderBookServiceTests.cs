@@ -19,8 +19,7 @@ public class OrderBookServiceTests: ApiTestBase
 		OrderBookModificationResponse? response = await client.AddOrderAsync(req);
 
 		response.ShouldNotBeNull();
-		response.Status.IsSuccess.ShouldBe(false);
-		response.Status.Message.ShouldBe("Not Yet Implemented");
+		response.Status.IsSuccess.ShouldBe(true);
 	}
 	
 	[Fact]
