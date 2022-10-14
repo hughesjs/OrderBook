@@ -56,8 +56,11 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 		await HandleAddOrderHotPathBadResult(asset, order, collection);
 	}
 
-	public async Task ModifyOrderInOrderBook(AssetDefinition asset, OrderEntity order) => throw new NotImplementedException();
+	public async Task ModifyOrderInOrderBook(AssetDefinition asset, OrderEntity order)   => throw new NotImplementedException();
+	public async Task RemoveOrderFromBook(AssetDefinition    asset, string      orderId) => throw new NotImplementedException();
 
+	
+	
 	private IMongoCollection<OrderBookEntity> GetCollection(AssetDefinition asset) => Database.GetCollection<OrderBookEntity>(asset.Class.ToString());
 
 	private async Task HandleAddOrderHotPathBadResult(AssetDefinition asset, OrderEntity order, IMongoCollection<OrderBookEntity> collection)

@@ -69,17 +69,30 @@ public class OrderBookServiceTests
 		
 		OrderBookModificationResponse res = await _orderBookService.ModifyOrder(request);
 		
+		(DateTime.UtcNow - res.EffectiveFrom.ToDateTime()).ShouldBeLessThan(TimeSpan.FromSeconds(10));
+	}
+
+	[Theory]
+	[MemberData(nameof(GetRemoveOrderRequests), NumTests)]
+	public async Task WhenOrderIsRemovedSuccessfullyThenItReturnsSuccess(RemoveOrderRequest request)
+	{
+		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
+		
+		OrderBookModificationResponse res = await _orderBookService.RemoveOrder(request);
+		
 		res.Status.IsSuccess.ShouldBe(true);
 	}
 	
-	//
-	// [Theory]
-	// [MemberData(nameof(GetRemoveOrderRequests), NumTests)]
-	// public async Task CanR(RemoveOrderRequest request)
-	// {
-	// 	
-	// 	OrderBookModificationResponse res = await _orderBookService.RemoveOrder(request);
-	// }
+	[Theory]
+	[MemberData(nameof(GetRemoveOrderRequests), NumTests)]
+	public async Task WhenOrderIsRemovedSuccessfullyThenEffectiveTimeIsSetToUtcNow(RemoveOrderRequest request)
+	{
+		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
+		
+		OrderBookModificationResponse res = await _orderBookService.RemoveOrder(request);
+		
+		(DateTime.UtcNow - res.EffectiveFrom.ToDateTime()).ShouldBeLessThan(TimeSpan.FromSeconds(10));
+	}
 	
 
 	
