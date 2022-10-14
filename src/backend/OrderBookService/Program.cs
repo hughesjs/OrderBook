@@ -1,11 +1,12 @@
 using JetBrains.Annotations;
+using OrderBookService.Application.Interceptors;
 using OrderBookService.DependencyInjection;
 using OrderBookService.Services.ProtosServices;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddGrpc();
+builder.Services.AddGrpc(c=>c.Interceptors.Add<ExceptionInterceptor>());
 builder.Services.AddGrpcReflection();
 
 builder.Services.AddOrderBookServices();
