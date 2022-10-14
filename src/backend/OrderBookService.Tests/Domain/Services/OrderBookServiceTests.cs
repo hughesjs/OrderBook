@@ -129,140 +129,30 @@ public class OrderBookServiceTests
 
 	public static IEnumerable<object[]> GetPriceTestData(int num)
 	{
-		int testsPerClass = num/4;
-
 		AssetDefinition assetDefinition = Fixture.Create<AssetDefinition>();
 
 		List<GetPriceTestCase> testCases = new();
-
-		// Add simple buyside cases where everything is covered by one order
-		for (int i = 0; i < testsPerClass; i++)
-		{
-			decimal buyAmount   = PositiveDecimal();
-			decimal lowestPrice = PositiveDecimal();
-			OrderBookEntity orderBookEntity = new()
-											  {
-												  UnderlyingAsset = assetDefinition,
-												  Orders = new()
-														   {
-															   new()
-															   {
-																   Id            = Guid.NewGuid().ToString(),
-																   Amount        = buyAmount + PositiveDecimal(),
-																   EffectiveTime = DateTime.Today,
-																   OrderAction   = OrderAction.Sell,
-																   Price         = lowestPrice + PositiveDecimal()
-															   },
-															   new()
-															   {
-																   Id            = Guid.NewGuid().ToString(),
-																   Amount        = buyAmount + PositiveDecimal(),
-																   EffectiveTime = DateTime.Today,
-																   OrderAction   = OrderAction.Sell,
-																   Price         = lowestPrice
-															   }
-														   }
-											  };
-			testCases.Add(new()
-						  {
-							  AmountWanted = buyAmount,
-							  ExpectedPrice = lowestPrice * buyAmount,
-							  OrderBookEntity = orderBookEntity,
-							  OrderAction = OrderAction.Buy
-						  });
 		
-		}
-		
-		// // Add simple sellside cases where everything is covered by one order
-		for (int i = 0; i < testsPerClass; i++)
-		{
-			decimal sellAmount   = PositiveDecimal();
-			decimal highestPrice = PositiveDecimal();
-			OrderBookEntity orderBookEntity = new()
-											  {
-												  UnderlyingAsset = assetDefinition,
-												  Orders = new()
-														   {
-															   new()
-															   {
-																   Id            = Guid.NewGuid().ToString(),
-																   Amount        = sellAmount + PositiveDecimal(),
-																   EffectiveTime = DateTime.Today,
-																   OrderAction   = OrderAction.Buy,
-																   Price         = highestPrice - PositiveDecimal()
-															   },
-															   new()
-															   {
-																   Id            = Guid.NewGuid().ToString(),
-																   Amount        = sellAmount + PositiveDecimal(),
-																   EffectiveTime = DateTime.Today,
-																   OrderAction   = OrderAction.Buy,
-																   Price         = highestPrice
-															   }
-														   }
-											  };
-			testCases.Add(new()
-						  {
-							  AmountWanted       = sellAmount,
-							  ExpectedPrice   = highestPrice * sellAmount,
-							  OrderBookEntity = orderBookEntity,
-							  OrderAction     = OrderAction.Sell
-						  });
-		}
-
-		// Add complex buyside cases where multiple orders are needed
 		// This is admittedly more complex than I'd usually make a test-case
-		// But I was having fun, and it's mathematically rigourous
-		for (int i = 0; i < testsPerClass; i++)
+		// But I was having fun, and it's mathematically rigourous (see readme)
+		// I did start off simple and iterate
+		for (int i = 0; i < num; i++)
 		{
-			decimal   buyAmount          = PositiveDecimal();
-			decimal   lowestPrice        = PositiveDecimal();
-			decimal[] amountCoefficients = GetAmountCoefficients();
-			decimal[] priceCoefficients  = GetPriceCoefficients();
+			OrderAction action             = Fixture.Create<OrderAction>();
+			decimal     amount             = PositiveDecimal();
+			decimal     lowestPrice        = PositiveDecimal();
+			decimal[]   amountCoefficients = GetAmountCoefficients();
+			decimal[]   priceCoefficients  = GetPriceCoefficients();
 
 			decimal priceMux = DotProduct(amountCoefficients, priceCoefficients);
 
 			List<OrderEntity> orders = amountCoefficients.Select((t, j) => new OrderEntity
 																		   {
 																			   Id            = Guid.NewGuid().ToString(),
-																			   Amount        = j != j - 1 ? buyAmount*t : buyAmount*t + 0.5m, // Ensure there's a surplus
+																			   Amount        = j != j - 1 ? amount*t : amount*t + 0.5m, // Ensure there's a surplus
 																			   EffectiveTime = DateTime.Today,
-																			   OrderAction   = OrderAction.Sell,
+																			   OrderAction   = action == OrderAction.Buy ? OrderAction.Sell : OrderAction.Buy,
 																			   Price         = lowestPrice*priceCoefficients[j]
-																		   })
-														 .ToList();
-
-			OrderBookEntity orderBookEntity = new()
-											  {
-												  UnderlyingAsset = assetDefinition,
-												  Orders = orders
-											  };
-			testCases.Add(new()
-						  {
-							  AmountWanted    = buyAmount,
-							  ExpectedPrice   = priceMux * lowestPrice * buyAmount,
-							  OrderBookEntity = orderBookEntity,
-							  OrderAction     = OrderAction.Buy
-						  });
-		}
-
-		// Add complex sellside cases where multiple orders are needed
-		for (int i = 0; i < testsPerClass; i++)
-		{
-			decimal   sellAmount          = PositiveDecimal();
-			decimal   highestPrice        = PositiveDecimal();
-			decimal[] amountCoefficients = GetAmountCoefficients();
-			decimal[] priceCoefficients  = GetPriceCoefficients();
-
-			decimal priceMux = DotProduct(amountCoefficients, priceCoefficients);
-
-			List<OrderEntity> orders = amountCoefficients.Select((t, j) => new OrderEntity
-																		   {
-																			   Id            = Guid.NewGuid().ToString(),
-																			   Amount        = j != j - 1 ? sellAmount*t : sellAmount*t + 0.5m, // Ensure there's a surplus
-																			   EffectiveTime = DateTime.Today,
-																			   OrderAction   = OrderAction.Buy,
-																			   Price         = highestPrice*priceCoefficients[j]
 																		   })
 														 .ToList();
 
@@ -273,15 +163,16 @@ public class OrderBookServiceTests
 											  };
 			testCases.Add(new()
 						  {
-							  AmountWanted    = sellAmount,
-							  ExpectedPrice   = priceMux* highestPrice* sellAmount,
+							  AmountWanted    = amount,
+							  ExpectedPrice   = priceMux* lowestPrice* amount,
 							  OrderBookEntity = orderBookEntity,
-							  OrderAction     = OrderAction.Sell
+							  OrderAction     = action
 						  });
 		}
 
 		return testCases.Select(tc => new object[] {tc});
 	}
+	
 
 	private IMapper GetMapper()
 	{
