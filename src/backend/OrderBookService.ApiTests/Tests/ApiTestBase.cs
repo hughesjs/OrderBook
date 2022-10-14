@@ -1,6 +1,7 @@
 using AutoFixture;
 using Grpc.Net.Client;
 using Microsoft.Extensions.Logging;
+using OrderBookProtos.CustomTypes;
 using Xunit.Abstractions;
 
 namespace OrderBookService.ApiTests;
@@ -14,6 +15,12 @@ public class ApiTestBase : IClassFixture<OrderBookTestFixture>, IDisposable
 
 	protected static Fixture AutoFixture { get; } = new();
 
+	static ApiTestBase()
+	{
+		AutoFixture.Customize<GuidValue>(c => c.With(p => p.Value, () => Guid.NewGuid().ToString()));
+	}
+	
+	
 	protected ApiTestBase(OrderBookTestFixture fixture, ITestOutputHelper outputHelper)
 	{
 		LoggerFactory = new();

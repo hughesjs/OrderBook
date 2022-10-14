@@ -20,7 +20,11 @@ public class OrderBookServiceTests
 
 	private readonly IOrderBookService    _orderBookService;
 	private readonly IOrderBookRepository _mockOrderBookRepository;
-
+	
+	static OrderBookServiceTests()
+	{
+		Fixture.Customize<GuidValue>(c => c.With(p => p.Value, Guid.NewGuid().ToString()));
+	}
 
 	public OrderBookServiceTests()
 	{

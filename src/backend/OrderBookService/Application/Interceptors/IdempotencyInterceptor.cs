@@ -1,15 +1,13 @@
 using Grpc.Core;
-using Grpc.Core.Interceptors;
 using OrderBookProtos.CustomTypes;
 using OrderBookProtos.ServiceBases;
+using OrderBookService.Application.Misc;
 using StackExchange.Redis;
 
 namespace OrderBookService.Application.Interceptors;
 
 public class IdempotencyInterceptor : InterceptorBase
 {
-	public	const string IdempotencyPrefix = "idempotency";
-	
 	private readonly IConnectionMultiplexer        _redisMultiplexer;
 	private readonly IDatabaseAsync                _redis;
 	private readonly ILogger<ExceptionInterceptor> _logger;
@@ -38,19 +36,19 @@ public class IdempotencyInterceptor : InterceptorBase
 			ResponseStatus status = new()
 									{
 										IsSuccess = false,
-										Message   = "This operation should be idempotent, but no idempotency key was provided"
+										Message   = StaticStrings.NoIdempotencyKeyProvidedMessage
 									};
 			return MapResponse<TRequest, TResponse>(status);
 		}
 
-		string redisKey = $"{IdempotencyPrefix}{idempotencyKey}";
+		string redisKey = $"{StaticStrings.IdempotencyPrefix}{idempotencyKey}";
 
 		if (await _redis.KeyExistsAsync(redisKey))
 		{
 			ResponseStatus status = new()
 									{
 										IsSuccess = false,
-										Message   = "This request is being ignored as a previous request has been processed with this idempotency key"
+										Message   = StaticStrings.IdempotentOperationAlreadyCompleteMessage
 									};
 			return MapResponse<TRequest, TResponse>(status);
 		}

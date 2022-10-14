@@ -1,6 +1,7 @@
 using Grpc.Core;
 using OrderBookProtos.CustomTypes;
 using OrderBookProtos.ServiceBases;
+using OrderBookService.Application.Misc;
 using StackExchange.Redis;
 
 namespace OrderBookService.Application.Interceptors;
@@ -50,6 +51,6 @@ public class ExceptionInterceptor: InterceptorBase
 		
 		_logger.LogInformation("Clearing idempotency key due to exception for {@Request}", request);
 
-		await _database.KeyDeleteAsync($"{IdempotencyInterceptor.IdempotencyPrefix}{idempotencyKey}");
+		await _database.KeyDeleteAsync($"{StaticStrings.IdempotencyPrefix}{idempotencyKey}");
 	}
 }

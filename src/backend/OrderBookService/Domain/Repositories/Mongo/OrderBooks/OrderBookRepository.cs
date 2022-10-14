@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using OrderBookService.Application.Config;
+using OrderBookService.Application.Misc;
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
 using OrderBookService.Exceptions;
@@ -107,9 +108,9 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 	{
 		if (!(await CollectionExistsAsync(asset.Class.ToString()) && await OrderBookExists(asset, collection)))
 		{
-			throw new FailedToDeleteOrderException("Failed to delete order, OrderBook does not exist", orderId, asset);
+			throw new FailedToDeleteOrderException(StaticStrings.FailedToDeleteNoOrderBookMessage, orderId, asset);
 		}
-		throw new FailedToDeleteOrderException("Failed to delete order, OrderId does not exist", orderId, asset);
+		throw new FailedToDeleteOrderException(StaticStrings.FailedToDeleteOrderIdNonExistant, orderId, asset);
 	}
 
 	private async Task<bool> OrderBookExists(AssetDefinition asset, IMongoCollection<OrderBookEntity> collection) => await (await collection.FindAsync(d => d.UnderlyingAsset == asset)).AnyAsync();
