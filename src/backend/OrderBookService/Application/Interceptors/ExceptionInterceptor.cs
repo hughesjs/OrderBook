@@ -30,7 +30,7 @@ public class ExceptionInterceptor: InterceptorBase
 		}
 		catch (Exception exception)
 		{
-			_logger.LogError(exception, exception.Message);
+			_logger.LogError(exception, "{Message}", exception.Message);
 
 			await WipeIdempotencyKey(request);
 			

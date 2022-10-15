@@ -8,7 +8,7 @@ public abstract class InterceptorBase: Interceptor
 {
 	protected TResponse MapResponse<TRequest, TResponse>(ResponseStatus responseStatus)
 	{
-		var concreteResponse = Activator.CreateInstance<TResponse>();
+		TResponse concreteResponse = Activator.CreateInstance<TResponse>();
         
 		concreteResponse?.GetType().GetProperty(nameof(PriceResponse.Status))?.SetValue(concreteResponse, responseStatus);
 		

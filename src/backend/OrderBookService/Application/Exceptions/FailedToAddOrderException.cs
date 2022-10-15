@@ -5,7 +5,7 @@ namespace OrderBookService.Exceptions;
 
 public class FailedToAddOrderException: Exception
 {
-	public AssetDefinition Asset       { get; }
+	public AssetDefinition Asset { get; }
 	public OrderEntity     OrderEntity { get; }
 	
 	public FailedToAddOrderException(string? message, AssetDefinition asset, OrderEntity orderEntity) : base(message)
