@@ -7,6 +7,17 @@ High-performance trading order-book
 [![GitHub](https://img.shields.io/github/license/hughesjs/OrderBook?style=for-the-badge)](LICENSE)
 ![FTB](https://raw.githubusercontent.com/hughesjs/custom-badges/master/made-in/made-in-scotland.svg)
 
+# Introduction
+
+# Design Assumptions
+
+# Architectural Summary
+
+# Testing Methodology
+
+# Performance Testing Results
+
+# Future Developments
 
 # Notes
 
