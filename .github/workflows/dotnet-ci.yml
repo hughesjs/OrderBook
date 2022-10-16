@@ -31,6 +31,6 @@ jobs:
           dotnet-version: '7.0.x'
           dotnet-quality: 'preview'
       - name: Build docker stack
-        run: docker-compose up -d --force-recreate --build
+        run: docker-compose up -d --force-recreate --build -f docker-compose-dev.yml
       - name: Run API tests
         run: dotnet test --logger GitHubActions ./src/backend/OrderBookService.ApiTests/OrderBookService.ApiTests.csproj
