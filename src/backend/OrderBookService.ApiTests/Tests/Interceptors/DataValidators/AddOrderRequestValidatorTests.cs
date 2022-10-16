@@ -8,13 +8,13 @@ using Xunit.Abstractions;
 
 namespace OrderBookService.ApiTests.Tests.Interceptors.DataValidators;
 
-public class AddOrderRequestValidator: ApiTestBase
+public class AddOrderRequestValidatorTests: ApiTestBase
 {
 	private const int NumTests = 100;
 
 	private readonly OrderBookProtos.ServiceBases.OrderBookService.OrderBookServiceClient _client;
 	
-	public AddOrderRequestValidator(OrderBookTestFixture testFixture, ITestOutputHelper outputHelper) : base(testFixture, outputHelper)
+	public AddOrderRequestValidatorTests(OrderBookTestFixture testFixture, ITestOutputHelper outputHelper) : base(testFixture, outputHelper)
 	{
 		_client     = new(Channel);
 	}
