@@ -17,7 +17,7 @@ services:
   redis:
     hostname: redis
     image: "bitnami/redis:latest"
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: redis-server --requirepass ${REDIS_PASSWORD} --save "" --appendonly no
     restart: unless-stopped
     networks:
       - backend

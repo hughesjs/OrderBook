@@ -26,7 +26,11 @@ jobs:
         with:
           dotnet-version: '7.0.x'
           dotnet-quality: 'preview'
+      - name: Install deps
+        run: apt-get update && apt-get install -y k6
       - name: Build docker stack
         run: docker-compose -f docker-compose-prod.yml up -d
-      - name: Run API tests
-        run: dotnet test --logger GitHubActions ./src/backend/OrderBookService.ApiTests/OrderBookService.ApiTests.csproj
+      - name: Run performance tests
+        run: cd ./src/perf-testing && k6 run --vus 10 --duration 30s perf-test.js
+
+        
