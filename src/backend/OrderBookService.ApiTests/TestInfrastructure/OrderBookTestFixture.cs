@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Hosting;
-using OrderBookService;
 
+
+namespace OrderBookService.ApiTests.TestInfrastructure;
 
 public class OrderBookTestFixture : WebApplicationFactory<Program>
 {

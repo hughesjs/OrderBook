@@ -2,10 +2,11 @@ using AutoFixture;
 using Grpc.Core;
 using OrderBookProtos.CustomTypes;
 using OrderBookProtos.ServiceBases;
+using OrderBookService.ApiTests.TestInfrastructure;
 using Shouldly;
 using Xunit.Abstractions;
 
-namespace OrderBookService.ApiTests;
+namespace OrderBookService.ApiTests.Tests.Services;
 
 public class OrderBookServiceTests: ApiTestBase
 {

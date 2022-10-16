@@ -1,6 +1,6 @@
 using OrderBookService.Application.Config;
 
-namespace OrderBookService.DependencyInjection;
+namespace OrderBookService.Application.DependencyInjection;
 
 public static class WebApplicationBuilderExtensions
 {

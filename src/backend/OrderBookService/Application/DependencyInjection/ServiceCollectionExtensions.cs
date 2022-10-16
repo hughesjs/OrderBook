@@ -4,7 +4,7 @@ using OrderBookService.Domain.Repositories.Mongo.OrderBooks;
 using OrderBookService.Domain.Services;
 using StackExchange.Redis;
 
-namespace OrderBookService.DependencyInjection;
+namespace OrderBookService.Application.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {

@@ -2,9 +2,10 @@ using AutoFixture;
 using Grpc.Net.Client;
 using Microsoft.Extensions.Logging;
 using OrderBookProtos.CustomTypes;
+using OrderBookService.ApiTests.TestInfrastructure;
 using Xunit.Abstractions;
 
-namespace OrderBookService.ApiTests;
+namespace OrderBookService.ApiTests.Tests;
 
 public class ApiTestBase : IClassFixture<OrderBookTestFixture>, IDisposable
 {

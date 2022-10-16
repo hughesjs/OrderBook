@@ -1,0 +1,24 @@
+name: .NET Continuous Integration
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  fake-deploy-and-perf-test:
+    name: Fake Deployment and Perf Testing
+    runs-on: ubuntu-latest
+    env:
+      API_TEST_CONNECTION_STRING: "http://orderbook:5237"
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+          dotnet-quality: 'preview'
+      - name: Build docker stack
+        run: docker-compose -f docker-compose-prod.yml up -d
+      - name: Run API tests
+        run: dotnet test --logger GitHubActions ./src/backend/OrderBookService.ApiTests/OrderBookService.ApiTests.csproj

@@ -1,8 +1,8 @@
 using Calzolari.Grpc.AspNetCore.Validation;
 using JetBrains.Annotations;
+using OrderBookService.Application.DependencyInjection;
 using OrderBookService.Application.Interceptors;
-using OrderBookService.DependencyInjection;
-using OrderBookService.Services.ProtosServices;
+using OrderBookService.Application.Protobuf.ProtosServices;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

@@ -2,10 +2,11 @@ using AutoFixture;
 using Grpc.Core;
 using OrderBookProtos.CustomTypes;
 using OrderBookProtos.ServiceBases;
+using OrderBookService.ApiTests.TestInfrastructure;
 using Shouldly;
 using Xunit.Abstractions;
 
-namespace OrderBookService.ApiTests.Tests.Interceptors;
+namespace OrderBookService.ApiTests.Tests.Interceptors.DataValidators;
 
 public class AddOrderRequestValidator: ApiTestBase
 {
