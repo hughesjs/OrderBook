@@ -31,6 +31,7 @@ public class IdempotencyInterceptor : InterceptorBase
 			return await continuation(request, context);
 		}
 
+		
 		if (typeof(TRequest).GetProperty(nameof(AddOrModifyOrderRequest.IdempotencyKey))?.GetValue(request) is not GuidValue idempotencyKey)
 		{
 			ResponseStatus status = new()

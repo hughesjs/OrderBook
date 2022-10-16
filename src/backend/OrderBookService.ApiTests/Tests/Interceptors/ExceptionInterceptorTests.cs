@@ -12,7 +12,7 @@ public class ExceptionInterceptorTests: ApiTestBase
 
 	private readonly OrderBookProtos.ServiceBases.OrderBookService.OrderBookServiceClient client;
 
-	public ExceptionInterceptorTests(OrderBookTestFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+	public ExceptionInterceptorTests(OrderBookTestFixture testFixture, ITestOutputHelper outputHelper) : base(testFixture, outputHelper)
 	{
 		client = new(Channel);
 	}
@@ -26,5 +26,5 @@ public class ExceptionInterceptorTests: ApiTestBase
 		res.Status.Message.ShouldBe(StaticStrings.FailedToDeleteNoOrderBookMessage);
 	}
 	
-	public static IEnumerable<object[]> GetRemoveOrderRequests(int num) => AutoFixture.CreateMany<RemoveOrderRequest>(num).Select(or => new object[] {or});
+	public static IEnumerable<object[]> GetRemoveOrderRequests(int num) => AutoFix.CreateMany<RemoveOrderRequest>(num).Select(or => new object[] {or});
 }

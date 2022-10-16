@@ -110,7 +110,7 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 		{
 			throw new FailedToDeleteOrderException(StaticStrings.FailedToDeleteNoOrderBookMessage, orderId, asset);
 		}
-		throw new FailedToDeleteOrderException(StaticStrings.FailedToDeleteOrderIdNonExistant, orderId, asset);
+		throw new FailedToDeleteOrderException(StaticStrings.FailedToDeleteOrderIdNonExistent, orderId, asset);
 	}
 
 	private async Task<bool> OrderBookExists(AssetDefinition asset, IMongoCollection<OrderBookEntity> collection) => await (await collection.FindAsync(d => d.UnderlyingAsset == asset)).AnyAsync();

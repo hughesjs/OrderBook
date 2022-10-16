@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-import "Protos/customtypes/guid.proto";
-import "Protos/customtypes/decimal.proto";
-import "Protos/customtypes/responsestatus.proto";
-import "Protos/customtypes/assetdefinition.proto";
+import "Application/Protobuf/ProtosDefinitions/customtypes/guid.proto";
+import "Application/Protobuf/ProtosDefinitions/customtypes/decimal.proto";
+import "Application/Protobuf/ProtosDefinitions/customtypes/responsestatus.proto";
+import "Application/Protobuf/ProtosDefinitions/customtypes/assetdefinition.proto";
 
 import "google/protobuf/timestamp.proto";
 

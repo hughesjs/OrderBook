@@ -1,3 +1,4 @@
+using Calzolari.Grpc.AspNetCore.Validation;
 using JetBrains.Annotations;
 using OrderBookService.Application.Interceptors;
 using OrderBookService.DependencyInjection;
@@ -8,6 +9,7 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddGrpc(c =>
 						 {
+							 c.EnableMessageValidation();
 							 c.Interceptors.Add<ExceptionInterceptor>();
 							 c.Interceptors.Add<IdempotencyInterceptor>();
 						 }

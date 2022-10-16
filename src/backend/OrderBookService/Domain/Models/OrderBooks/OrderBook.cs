@@ -12,9 +12,9 @@ namespace OrderBookService.Domain.Models.OrderBooks;
 /// </summary>
 internal class OrderBook:  ICollection<Order>
 {
-	public  AssetDefinition            UnderlyingAsset { get; }
+	public required AssetDefinition UnderlyingAsset { get; init; }
+	
 	// Just using the dictionary to ensure OrderId uniqueness
-
 	private Dictionary<Guid, Order>    _orders         { get; } 
 	public  IReadOnlyCollection<Order> Orders          => _orders.Values;
 	public  int                        Count           => Orders.Count;
