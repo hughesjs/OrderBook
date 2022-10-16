@@ -1,11 +1,16 @@
 version: "3.1"
-
 services:
-  
+
   perftests:
     build:
       context: src
       dockerfile: perf-testing/Dockerfile
+    environment:
+    - TEST_FILE=${TEST_FILE}
+    - MONGO_USER=${MONGO_USER}
+    - MONGO_PASS=${MONGO_PW}
+    - MONGO_HOST=${MONGO_HOST}
+    - MONGO_PORT=${MONGO_PORT}
     depends_on:
       - mongo
       - orderbook
