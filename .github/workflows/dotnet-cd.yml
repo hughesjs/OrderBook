@@ -1,4 +1,4 @@
-name: .NET Continuous Integration
+name: .NET Fake Continuous Deployment
 
 on:
   push:
@@ -11,6 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       API_TEST_CONNECTION_STRING: "http://orderbook:5237"
+      MONGO_PW: ${MONGO_PASS}
+      MONGO_USER: ${MONGO_USER}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      #ENVIRONMENT: Development
     steps:
       - uses: actions/checkout@v3
       - name: Setup .NET
