@@ -12,15 +12,22 @@ package orderBook;
 option csharp_namespace = "OrderBookProtos.ServiceBases";
 
 service OrderBookService {
-  rpc AddOrder (AddOrModifyOrderRequest) returns (OrderBookModificationResponse);
-  rpc ModifyOrder (AddOrModifyOrderRequest) returns (OrderBookModificationResponse);
-  rpc RemoveOrder (RemoveOrderRequest) returns (OrderBookModificationResponse);
+  rpc AddOrder (AddOrderRequest) returns (AddOrderResponse);
+  rpc ModifyOrder (ModifyOrderRequest) returns (ModifyOrderResponse);
+  rpc RemoveOrder (RemoveOrderRequest) returns (ModifyOrderResponse);
   
   rpc GetPrice (GetPriceRequest) returns (PriceResponse);
 }
 
-// The request message containing the user's name.
-message AddOrModifyOrderRequest {
+message AddOrderRequest {
+  customProtoTypes.GuidValue idempotencyKey = 1;
+  customProtoTypes.AssetDefinitionValue assetDefinition = 2;
+  customProtoTypes.DecimalValue amount = 3;
+  customProtoTypes.DecimalValue price = 4;
+  OrderAction orderAction = 5;
+}
+
+message ModifyOrderRequest {
   customProtoTypes.GuidValue idempotencyKey = 1;
   customProtoTypes.GuidValue orderId = 2;
   customProtoTypes.AssetDefinitionValue assetDefinition = 3;
@@ -41,7 +48,13 @@ message GetPriceRequest {
   OrderAction orderAction = 3;
 }
 
-message OrderBookModificationResponse {
+message AddOrderResponse {
+  customProtoTypes.Status status= 1;
+  customProtoTypes.GuidValue orderId = 2;
+  google.protobuf.Timestamp effectiveFrom = 3;
+}
+
+message ModifyOrderResponse {
   customProtoTypes.Status status= 1;
   google.protobuf.Timestamp effectiveFrom = 2;
 }

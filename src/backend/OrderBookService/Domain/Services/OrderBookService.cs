@@ -1,6 +1,7 @@
 using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
+using OrderBookProtos.CustomTypes;
 using OrderBookProtos.ServiceBases;
 using OrderBookService.Application.Misc;
 using OrderBookService.Domain.Entities;
@@ -27,27 +28,34 @@ internal class OrderBookService : IOrderBookService
 	// NB: Failure states are to be handled by the exception interceptor.
 	//     The repo handles anticipated failure states before rethrowing if necessary.
 
-	public async Task<OrderBookModificationResponse> AddOrder(AddOrModifyOrderRequest request)
+	public async Task<AddOrderResponse> AddOrder(AddOrderRequest request)
 	{
 		AssetDefinition assetDefinition = _mapper.Map<AssetDefinition>(request.AssetDefinition);
 
 		DateTime    effectiveFrom = DateTime.UtcNow;
-		OrderEntity orderEntity   = _mapper.Map<OrderEntity>(request) with {EffectiveTime = effectiveFrom};
+		Guid        orderId       = Guid.NewGuid();
+		OrderEntity orderEntity   = _mapper.Map<OrderEntity>(request) with
+									{
+										EffectiveTime = effectiveFrom,
+										Id = orderId.ToString()
+									};
 
 		await _orderBookRepository.AddOrderToOrderBook(assetDefinition, orderEntity);
 
 		return new()
 			   {
+				   OrderId       = new(){Value = orderId.ToString()},
 				   EffectiveFrom = effectiveFrom.ToTimestamp(),
 				   Status = new()
 							{
 								Code    = (int)StatusCode.OK,
 								Message = StaticStrings.SuccessMessage
 							}
+				   
 			   };
 	}
 
-	public async Task<OrderBookModificationResponse> ModifyOrder(AddOrModifyOrderRequest request)
+	public async Task<ModifyOrderResponse> ModifyOrder(ModifyOrderRequest request)
 	{
 		AssetDefinition assetDefinition = _mapper.Map<AssetDefinition>(request.AssetDefinition);
 
@@ -67,7 +75,7 @@ internal class OrderBookService : IOrderBookService
 			   };
 	}
 
-	public async Task<OrderBookModificationResponse> RemoveOrder(RemoveOrderRequest request)
+	public async Task<ModifyOrderResponse> RemoveOrder(RemoveOrderRequest request)
 	{
 		AssetDefinition assetDefinition = _mapper.Map<AssetDefinition>(request.AssetDefinition);
 		DateTime        effectiveFrom   = DateTime.UtcNow;

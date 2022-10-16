@@ -7,20 +7,20 @@ using Xunit.Abstractions;
 
 namespace OrderBookService.ApiTests.Tests.Interceptors;
 
-public class AddOrModifyOrderRequestValidatorTests: ApiTestBase
+public class AddOrderRequestValidator: ApiTestBase
 {
 	private const int NumTests = 100;
 
 	private readonly OrderBookProtos.ServiceBases.OrderBookService.OrderBookServiceClient _client;
 	
-	public AddOrModifyOrderRequestValidatorTests(OrderBookTestFixture testFixture, ITestOutputHelper outputHelper) : base(testFixture, outputHelper)
+	public AddOrderRequestValidator(OrderBookTestFixture testFixture, ITestOutputHelper outputHelper) : base(testFixture, outputHelper)
 	{
 		_client     = new(Channel);
 	}
 
 	[Theory]
 	[MemberData(nameof(NegativeAndZeroAmountRequestGenerator), NumTests)]
-	public async Task FailsWhenNegativeOrZeroAmountProvided(AddOrModifyOrderRequest request)
+	public async Task FailsWhenNegativeOrZeroAmountProvided(AddOrderRequest request)
 	{
 		RpcException resException = await Should.ThrowAsync<RpcException>(async () => await _client.AddOrderAsync(request)); 
 		
@@ -30,7 +30,7 @@ public class AddOrModifyOrderRequestValidatorTests: ApiTestBase
 
 	[Theory]
 	[MemberData(nameof(InvalidDecimalValueAmountRequestGenerator), NumTests)]
-	public async Task FailsWhenInvalidDecimalValueInAmount(AddOrModifyOrderRequest request)
+	public async Task FailsWhenInvalidDecimalValueInAmount(AddOrderRequest request)
 	{
 		RpcException resException = await Should.ThrowAsync<RpcException>(async () => await _client.AddOrderAsync(request)); 
 		
@@ -40,7 +40,7 @@ public class AddOrModifyOrderRequestValidatorTests: ApiTestBase
 	
 	[Theory]
 	[MemberData(nameof(NegativeAndZeroPriceRequestGenerator), NumTests)]
-	public async Task FailsWhenNegativeOrZeroPriceProvided(AddOrModifyOrderRequest request)
+	public async Task FailsWhenNegativeOrZeroPriceProvided(AddOrderRequest request)
 	{
 		RpcException resException = await Should.ThrowAsync<RpcException>(async () => await _client.AddOrderAsync(request)); 
 		
@@ -50,7 +50,7 @@ public class AddOrModifyOrderRequestValidatorTests: ApiTestBase
 
 	[Theory]
 	[MemberData(nameof(InvalidDecimalValuePriceRequestGenerator), NumTests)]
-	public async Task FailsWhenInvalidDecimalInPrice(AddOrModifyOrderRequest request)
+	public async Task FailsWhenInvalidDecimalInPrice(AddOrderRequest request)
 	{
 		RpcException resException = await Should.ThrowAsync<RpcException>(async () => await _client.AddOrderAsync(request)); 
 		
@@ -61,7 +61,7 @@ public class AddOrModifyOrderRequestValidatorTests: ApiTestBase
 	[Fact]
 	public async Task FailsIfAssetClassIsInvalid()
 	{
-		AddOrModifyOrderRequest request = AutoFix.Create<AddOrModifyOrderRequest>();
+		AddOrderRequest request = AutoFix.Create<AddOrderRequest>();
 		request.AssetDefinition.Class = (AssetClass)int.MaxValue;
 
 		RpcException resException = await Should.ThrowAsync<RpcException>(async () => await _client.AddOrderAsync(request));
@@ -73,7 +73,7 @@ public class AddOrModifyOrderRequestValidatorTests: ApiTestBase
 	[Fact]
 	public async Task FailsIfAssetClassSymbolIsEmpty()
 	{
-		AddOrModifyOrderRequest request = AutoFix.Create<AddOrModifyOrderRequest>();
+		AddOrderRequest request = AutoFix.Create<AddOrderRequest>();
 		request.AssetDefinition.Symbol = "";
 		
 		RpcException resException = await Should.ThrowAsync<RpcException>(async () => await _client.AddOrderAsync(request));
@@ -85,7 +85,7 @@ public class AddOrModifyOrderRequestValidatorTests: ApiTestBase
 	[Fact]
 	public async Task FailsWhenOrderActionIsInvalid()
 	{
-		AddOrModifyOrderRequest request = AutoFix.Create<AddOrModifyOrderRequest>();
+		AddOrderRequest request = AutoFix.Create<AddOrderRequest>();
 		request.OrderAction = (OrderAction)int.MaxValue;
 
 		RpcException resException = await Should.ThrowAsync<RpcException>(async () => await _client.AddOrderAsync(request));
@@ -97,9 +97,9 @@ public class AddOrModifyOrderRequestValidatorTests: ApiTestBase
 	[Fact]
 	public async Task FailsWhenNoIdempotencyKeyIsProvided()
 	{
-		AddOrModifyOrderRequest request = AutoFix.Build<AddOrModifyOrderRequest>()
-													 .With(r => r.IdempotencyKey, (GuidValue)null!)
-													 .Create();
+		AddOrderRequest request = AutoFix.Build<AddOrderRequest>()
+										 .With(r => r.IdempotencyKey, (GuidValue)null!)
+										 .Create();
 
 		RpcException resException = await Should.ThrowAsync<RpcException>(async () => await _client.AddOrderAsync(request));
 		
@@ -110,9 +110,9 @@ public class AddOrModifyOrderRequestValidatorTests: ApiTestBase
 	[Fact]
 	public async Task FailsWhenNoOrderIdIsProvided()
 	{
-		AddOrModifyOrderRequest request = AutoFix.Build<AddOrModifyOrderRequest>()
-													 .With(r => r.IdempotencyKey, (GuidValue)null!)
-													 .Create();
+		AddOrderRequest request = AutoFix.Build<AddOrderRequest>()
+										 .With(r => r.IdempotencyKey, (GuidValue)null!)
+										 .Create();
 
 		RpcException resException = await Should.ThrowAsync<RpcException>(async () => await _client.AddOrderAsync(request));
 		
@@ -123,51 +123,51 @@ public class AddOrModifyOrderRequestValidatorTests: ApiTestBase
 
 	
 	public static IEnumerable<object[]> InvalidDecimalValueAmountRequestGenerator(int num)
-	=> AutoFix.Build<AddOrModifyOrderRequest>().With(p => p.Amount, () =>
-																		{
-																			int nanos = Random.Shared.Next(int.MinValue, int.MaxValue);
-																			return new()
-																				   {
-																					   Units = -(long)nanos,
-																					   Nanos = nanos
-																				   };
-																		}).CreateMany(num).Select(r => new object[] {r});
+	=> AutoFix.Build<AddOrderRequest>().With(p => p.Amount, () =>
+															{
+																int nanos = Random.Shared.Next(int.MinValue, int.MaxValue);
+																return new()
+																	   {
+																		   Units = -(long)nanos,
+																		   Nanos = nanos
+																	   };
+															}).CreateMany(num).Select(r => new object[] {r});
 		
 	
 	public static IEnumerable<object[]> NegativeAndZeroAmountRequestGenerator(int num)
 	{
-		AddOrModifyOrderRequest zeroAmountRequest = AutoFix.Build<AddOrModifyOrderRequest>()
-															   .With(p => p.Amount, 0)
-															   .Create();
+		AddOrderRequest zeroAmountRequest = AutoFix.Build<AddOrderRequest>()
+												   .With(p => p.Amount, 0)
+												   .Create();
 
-		IEnumerable<AddOrModifyOrderRequest>? negativeAmountRequests = AutoFix.Build<AddOrModifyOrderRequest>()
-																				  .With(p => p.Amount, () => (DecimalValue)NegativeDecimal())
-																				  .CreateMany(num - 1);
+		IEnumerable<AddOrderRequest>? negativeAmountRequests = AutoFix.Build<AddOrderRequest>()
+																	  .With(p => p.Amount, () => (DecimalValue)NegativeDecimal())
+																	  .CreateMany(num - 1);
 		
 		return negativeAmountRequests.Append(zeroAmountRequest).Select(r => new object[] {r});
 	}
 	
 	public static IEnumerable<object[]> InvalidDecimalValuePriceRequestGenerator(int num)
-		=> AutoFix.Build<AddOrModifyOrderRequest>().With(p => p.Price, () =>
-																			{
-																				int nanos = Random.Shared.Next(int.MinValue, int.MaxValue);
-																				return new()
-																					   {
-																						   Units = -(long)nanos,
-																						   Nanos = nanos
-																					   };
-																			}).CreateMany(num).Select(r => new object[] {r});
+		=> AutoFix.Build<AddOrderRequest>().With(p => p.Price, () =>
+															   {
+																   int nanos = Random.Shared.Next(int.MinValue, int.MaxValue);
+																   return new()
+																		  {
+																			  Units = -(long)nanos,
+																			  Nanos = nanos
+																		  };
+															   }).CreateMany(num).Select(r => new object[] {r});
 		
 	
 	public static IEnumerable<object[]> NegativeAndZeroPriceRequestGenerator(int num)
 	{
-		AddOrModifyOrderRequest zeroAmountRequest = AutoFix.Build<AddOrModifyOrderRequest>()
-															   .With(p => p.Price, 0)
-															   .Create();
+		AddOrderRequest zeroAmountRequest = AutoFix.Build<AddOrderRequest>()
+												   .With(p => p.Price, 0)
+												   .Create();
 
-		IEnumerable<AddOrModifyOrderRequest>? negativeAmountRequests = AutoFix.Build<AddOrModifyOrderRequest>()
-																				  .With(p => p.Price, () => (DecimalValue)NegativeDecimal())
-																				  .CreateMany(num - 1);
+		IEnumerable<AddOrderRequest>? negativeAmountRequests = AutoFix.Build<AddOrderRequest>()
+																	  .With(p => p.Price, () => (DecimalValue)NegativeDecimal())
+																	  .CreateMany(num - 1);
 		
 		return negativeAmountRequests.Append(zeroAmountRequest).Select(r => new object[] {r});
 	}

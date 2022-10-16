@@ -22,7 +22,7 @@ public class ExceptionInterceptorTests: ApiTestBase
 	[MemberData(nameof(GetRemoveOrderRequests), NumTests)]
 	public async Task IfIThrowAnExceptionThenTheMessageIsReturned(RemoveOrderRequest req)
 	{
-		OrderBookModificationResponse? res = await client.RemoveOrderAsync(req);
+		ModifyOrderResponse? res = await client.RemoveOrderAsync(req);
 		res.Status.Code.ShouldBe((int)StatusCode.Internal);
 		res.Status.Message.ShouldBe(StaticStrings.FailedToDeleteNoOrderBookMessage);
 	}

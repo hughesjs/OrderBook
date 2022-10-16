@@ -33,11 +33,32 @@ public class OrderBookServiceTests: ApiTestBase
 
 		for (int i = 0; i < NumTestEntries; i++)
 		{
-			AddOrModifyOrderRequest req = AutoFix.Create<AddOrModifyOrderRequest>();
+			AddOrderRequest req = AutoFix.Create<AddOrderRequest>();
 			req.AssetDefinition = asset;
 
-			OrderBookModificationResponse? res = await _client.AddOrderAsync(req);
+			AddOrderResponse? res = await _client.AddOrderAsync(req);
 			res.Status.Code.ShouldBe((int)StatusCode.OK);
+		}
+	}
+	
+	[Fact]
+	public async Task GivenIHaveAddedAnOrderThenIGetAnOrderIdBack()
+	{
+		
+		AssetDefinitionValue asset = new()
+									 {
+										 Class  = AssetClass.CoinPair,
+										 Symbol = "USDETH"
+									 };
+
+		for (int i = 0; i < NumTestEntries; i++)
+		{
+			AddOrderRequest req = AutoFix.Create<AddOrderRequest>();
+			req.AssetDefinition = asset;
+
+			AddOrderResponse? res = await _client.AddOrderAsync(req);
+			Guid.TryParse(res.OrderId.Value, out Guid guid).ShouldBeTrue();
+			guid.ShouldNotBe(Guid.Empty);
 		}
 	}
 
@@ -48,10 +69,10 @@ public class OrderBookServiceTests: ApiTestBase
 		
 		for (int i = 0; i < NumTestEntries; i++)
 		{
-			AddOrModifyOrderRequest req = AutoFix.Create<AddOrModifyOrderRequest>();
+			AddOrderRequest req = AutoFix.Create<AddOrderRequest>();
 			req.AssetDefinition = asset;
 
-			OrderBookModificationResponse? res = await _client.AddOrderAsync(req);
+			AddOrderResponse? res = await _client.AddOrderAsync(req);
 			res.Status.Code.ShouldBe((int)StatusCode.OK);
 		}
 	}
@@ -64,17 +85,21 @@ public class OrderBookServiceTests: ApiTestBase
 		
 		for (int i = 0; i < NumTestEntries; i++)
 		{
-			AddOrModifyOrderRequest req = AutoFix.Create<AddOrModifyOrderRequest>();
-			req.AssetDefinition = asset;
+			AddOrderRequest addReq = AutoFix.Create<AddOrderRequest>();
+			addReq.AssetDefinition = asset;
 
-			OrderBookModificationResponse? res = await _client.AddOrderAsync(req);
-			res.Status.Code.ShouldBe((int)StatusCode.OK);
+			AddOrderResponse? addRes = await _client.AddOrderAsync(addReq);
+			addRes.Status.Code.ShouldBe((int)StatusCode.OK);
 
-			req.Price          = AutoFix.Create<DecimalValue>();
-			req.IdempotencyKey = new() {Value = Guid.NewGuid().ToString()};
-			res                = await _client.ModifyOrderAsync(req);
+			ModifyOrderRequest modReq = AutoFix.Build<ModifyOrderRequest>()
+											   .With(r => r.AssetDefinition, addReq.AssetDefinition)
+											   .With(r => r.OrderId, addRes.OrderId)
+											   .With(r => r.Price, () => Random.Shared.Next())
+											   .Create();
+
+			ModifyOrderResponse modRes         = await _client.ModifyOrderAsync(modReq);
 			
-			res.Status.Code.ShouldBe((int)StatusCode.OK);
+			modRes.Status.Code.ShouldBe((int)StatusCode.OK);
 		}
 	}
 	
@@ -85,26 +110,23 @@ public class OrderBookServiceTests: ApiTestBase
 		
 		for (int i = 0; i < NumTestEntries; i++)
 		{
-			AddOrModifyOrderRequest req = AutoFix.Create<AddOrModifyOrderRequest>();
-			req.AssetDefinition = asset;
+			AddOrderRequest addReq = AutoFix.Create<AddOrderRequest>();
+			addReq.AssetDefinition = asset;
 
-			OrderBookModificationResponse? res = await _client.AddOrderAsync(req);
-			res.Status.Code.ShouldBe((int)StatusCode.OK);
-
-			RemoveOrderRequest remReq = new()
-										{
-											AssetDefinition = asset,
-											IdempotencyKey  = AutoFix.Create<GuidValue>(),
-											OrderId         = req.OrderId
-										};
+			AddOrderResponse? addRes = await _client.AddOrderAsync(addReq);
+			addRes.Status.Code.ShouldBe((int)StatusCode.OK);
 			
-			res       = await _client.RemoveOrderAsync(remReq);
+			RemoveOrderRequest remReq = AutoFix.Build<RemoveOrderRequest>()
+											   .With(r => r.AssetDefinition, addReq.AssetDefinition)
+											   .With(r => r.OrderId,         addRes.OrderId)
+											   .Create();
 			
-			res.Status.Code.ShouldBe((int)StatusCode.OK);
+			ModifyOrderResponse remRes       = await _client.RemoveOrderAsync(remReq);
+			
+			remRes.Status.Code.ShouldBe((int)StatusCode.OK);
 		}
 	}
 	
-	//TODO this should be a tdg
 	[Fact]
 	public async Task GivenOrderIsSatisfiableThenWeCanGetAPrice()
 	{
@@ -121,20 +143,20 @@ public class OrderBookServiceTests: ApiTestBase
 			decimal priceMux      = DotProduct(amountCoefficients, priceCoefficients);
 			decimal expectedPrice = priceMux*basePrice;
 
-			List<AddOrModifyOrderRequest> orderRequests = amountCoefficients.Select((t, j) => new AddOrModifyOrderRequest
+			List<AddOrderRequest> orderRequests = amountCoefficients.Select((t, j) => new AddOrderRequest
 																							  {
 																								  OrderAction     = action == OrderAction.Buy ? OrderAction.Sell : OrderAction.Buy,
 																								  Amount          = j      != amountCoefficients.Length - 1 ? amount* t : amount* t + 0.5m, // Ensure there's a surplus
 																								  AssetDefinition = asset,
 																								  IdempotencyKey  = AutoFix.Create<GuidValue>(),
-																								  OrderId         = AutoFix.Create<GuidValue>(),
 																								  Price           = basePrice*priceCoefficients[j]
 
 																							  }).ToList();
 			
-			foreach (AddOrModifyOrderRequest request in orderRequests)
+			foreach (AddOrderRequest request in orderRequests)
 			{
-				await _client.AddOrderAsync(request);
+				AddOrderResponse? res = await _client.AddOrderAsync(request);
+				res.OrderId.ShouldNotBeNull();
 			}
 			
 			GetPriceRequest req = new()

@@ -8,7 +8,9 @@ public static class CustomValidationRules
 {
 	public static void DecimalValueIsValidDecimal(DecimalValue dv, ValidationContext<GetPriceRequest> ctx) => ValidateDecimalValue(dv, ctx);
 
-	public static void DecimalValueIsValidDecimal(DecimalValue dv, ValidationContext<AddOrModifyOrderRequest> ctx) => ValidateDecimalValue(dv, ctx);
+	public static void DecimalValueIsValidDecimal(DecimalValue dv, ValidationContext<AddOrderRequest> ctx) => ValidateDecimalValue(dv, ctx);
+	
+	public static void DecimalValueIsValidDecimal(DecimalValue dv, ValidationContext<ModifyOrderRequest> ctx) => ValidateDecimalValue(dv, ctx);
 
 	private static void ValidateDecimalValue<TCtx>(DecimalValue dv, ValidationContext<TCtx> ctx)
 	{

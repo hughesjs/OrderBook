@@ -27,13 +27,13 @@ public class IdempotencyInterceptor : InterceptorBase
 		UnaryServerMethod<TRequest, TResponse> continuation
 	)
 	{
-		if (typeof(TRequest).GetProperty(nameof(AddOrModifyOrderRequest.IdempotencyKey)) is null)
+		if (typeof(TRequest).GetProperty(nameof(AddOrderRequest.IdempotencyKey)) is null)
 		{
 			return await continuation(request, context);
 		}
 
 		
-		if (typeof(TRequest).GetProperty(nameof(AddOrModifyOrderRequest.IdempotencyKey))?.GetValue(request) is not GuidValue idempotencyKey)
+		if (typeof(TRequest).GetProperty(nameof(AddOrderRequest.IdempotencyKey))?.GetValue(request) is not GuidValue idempotencyKey)
 		{
 			Status status = new()
 									{
