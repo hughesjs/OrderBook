@@ -24,7 +24,7 @@ public class ExceptionInterceptorTests: ApiTestBase
 	{
 		ModifyOrderResponse? res = await client.RemoveOrderAsync(req);
 		res.Status.Code.ShouldBe((int)StatusCode.Internal);
-		res.Status.Message.ShouldBe(StaticStrings.FailedToDeleteNoOrderBookMessage);
+		res.Status.Message.ShouldBe(StaticStrings.FailedToModifyOrDeleteNoOrderBookMessage);
 	}
 	
 	public static IEnumerable<object[]> GetRemoveOrderRequests(int num) => AutoFix.CreateMany<RemoveOrderRequest>(num).Select(or => new object[] {or});

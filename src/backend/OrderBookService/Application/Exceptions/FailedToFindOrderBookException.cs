@@ -1,6 +1,6 @@
 using OrderBookService.Domain.Models.Assets;
 
-namespace OrderBookService.Exceptions;
+namespace OrderBookService.Application.Exceptions;
 
 public class FailedToFindOrderBookException: Exception
 {

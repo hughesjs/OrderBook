@@ -2,11 +2,13 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderBookService", "OrderBookService\OrderBookService.csproj", "{A05B04B9-6D31-4A85-935A-88A18F926117}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderBookService.Tests", "OrderBookService.Tests\OrderBookService.Tests.csproj", "{C7158575-C2E1-4208-BAE1-2CB19EFA3457}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderBookService.UnitTests", "OrderBookService.UnitTests\OrderBookService.UnitTests.csproj", "{C7158575-C2E1-4208-BAE1-2CB19EFA3457}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderBookService.ApiTests", "OrderBookService.ApiTests\OrderBookService.ApiTests.csproj", "{196B37EE-FBEC-4E8B-BB5A-6DFF95BA7856}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderBookService.Benchmarks", "OrderBookService.Benchmarks\OrderBookService.Benchmarks.csproj", "{35CAFF7A-62F0-499F-9F4A-94E254641111}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderBookService.IntegrationTests", "OrderBookService.IntegrationTests\OrderBookService.IntegrationTests.csproj", "{2AC3DAA4-A189-4294-88A0-E7818208623A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +32,9 @@ Global
 		{35CAFF7A-62F0-499F-9F4A-94E254641111}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35CAFF7A-62F0-499F-9F4A-94E254641111}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35CAFF7A-62F0-499F-9F4A-94E254641111}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AC3DAA4-A189-4294-88A0-E7818208623A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AC3DAA4-A189-4294-88A0-E7818208623A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AC3DAA4-A189-4294-88A0-E7818208623A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AC3DAA4-A189-4294-88A0-E7818208623A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

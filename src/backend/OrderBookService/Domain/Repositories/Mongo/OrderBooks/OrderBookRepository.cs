@@ -1,10 +1,11 @@
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using OrderBookService.Application.Config;
+using OrderBookService.Application.Exceptions;
 using OrderBookService.Application.Misc;
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
-using OrderBookService.Exceptions;
 
 namespace OrderBookService.Domain.Repositories.Mongo.OrderBooks;
 
@@ -45,8 +46,8 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 		_logger.LogDebug("Attempting to add {OrderId} to {@Asset}", order.Id, asset);
 		
 		// Note: there is a problem with the Mongo driver https://jira.mongodb.org/browse/SERVER-1068 that's preventing it from enforcing uniqueness constraints
-		// On subobjects... We could test to see if they exist here, but since OrderIds should be unique and idempotency keys are in use, I don't think the slow
-		// Down is worth it for now
+		// On subobjects... We could test to see if they exist here, but since OrderIds should be unique (as long as we trust Guid.NewGuid() I don't think the slow
+		// Down is worth it
 		UpdateDefinition<OrderBookEntity> update     = Builders<OrderBookEntity>.Update.AddToSet(o => o.Orders, order);
 		IMongoCollection<OrderBookEntity> collection = GetCollection(asset);
 		UpdateResult?                     res        = await collection.UpdateOneAsync(f => f.UnderlyingAsset == asset, update);
@@ -63,13 +64,15 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 
 	public async Task ModifyOrderInOrderBook(AssetDefinition asset, OrderEntity order)
 	{
-		// This isn't ideal, could do without the read, alter, write...
-		OrderBookEntity                    entity     = await GetSingleAsync(asset);
-		int                                index      = entity.Orders.Select(o => o.Id).ToList().IndexOf(order.Id);
-		UpdateDefinition<OrderBookEntity>? update     = Builders<OrderBookEntity>.Update.Set(x => x.Orders[index], order);
-		IMongoCollection<OrderBookEntity>  collection = GetCollection(asset);
-		UpdateResult?                      res        = await collection.UpdateOneAsync(f => f.UnderlyingAsset == asset, update);
-		bool                               success    = (res is not null && res.ModifiedCount > 0);
+		BsonDocument filter = new()
+							  { 
+								  { "Orders._id", order.Id } 
+							  };
+		UpdateDefinition<OrderBookEntity>? update = Builders<OrderBookEntity>.Update.Set("Orders.$", order );
+		
+		IMongoCollection<OrderBookEntity> collection = GetCollection(asset);
+		UpdateResult?                     res        = await collection.UpdateOneAsync(filter, update);
+		bool                              success    = res is not null && res.ModifiedCount > 0;
 
 		if (success)
 		{
@@ -83,9 +86,9 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 	{
 		if (!(await CollectionExistsAsync(asset.Class.ToString()) && await OrderBookExists(asset, collection)))
 		{
-			throw new FailedToDeleteOrderException("Failed to update order, OrderBook does not exist", orderId, asset);
+			throw new FailedToModifyOrDeleteOrderException(StaticStrings.FailedToModifyOrDeleteNoOrderBookMessage, orderId, asset);
 		}
-		throw new FailedToDeleteOrderException("Failed to update order, OrderId does not exist", orderId, asset);
+		throw new FailedToModifyOrDeleteOrderException(StaticStrings.FailedToModifyOrDeleteOrderIdNonExistent, orderId, asset);
 	}
 
 	public async Task RemoveOrderFromBook(AssetDefinition asset, string orderId)
@@ -108,12 +111,16 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 	{
 		if (!(await CollectionExistsAsync(asset.Class.ToString()) && await OrderBookExists(asset, collection)))
 		{
-			throw new FailedToDeleteOrderException(StaticStrings.FailedToDeleteNoOrderBookMessage, orderId, asset);
+			throw new FailedToModifyOrDeleteOrderException(StaticStrings.FailedToModifyOrDeleteNoOrderBookMessage, orderId, asset);
 		}
-		throw new FailedToDeleteOrderException(StaticStrings.FailedToDeleteOrderIdNonExistent, orderId, asset);
+		throw new FailedToModifyOrDeleteOrderException(StaticStrings.FailedToModifyOrDeleteOrderIdNonExistent, orderId, asset);
 	}
 
-	private async Task<bool> OrderBookExists(AssetDefinition asset, IMongoCollection<OrderBookEntity> collection) => await (await collection.FindAsync(d => d.UnderlyingAsset == asset)).AnyAsync();
+	private async Task<bool> OrderBookExists(AssetDefinition asset, IMongoCollection<OrderBookEntity> collection)
+	{
+		IAsyncCursor<OrderBookEntity>? res = await collection.FindAsync(d => d.UnderlyingAsset == asset);
+		return await res.AnyAsync();
+	}
 
 
 	private IMongoCollection<OrderBookEntity> GetCollection(AssetDefinition asset) => Database.GetCollection<OrderBookEntity>(asset.Class.ToString());

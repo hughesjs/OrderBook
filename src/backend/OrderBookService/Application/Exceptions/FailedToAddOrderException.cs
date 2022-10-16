@@ -1,7 +1,7 @@
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
 
-namespace OrderBookService.Exceptions;
+namespace OrderBookService.Application.Exceptions;
 
 public class FailedToAddOrderException: Exception
 {
