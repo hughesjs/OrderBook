@@ -42,12 +42,12 @@ message GetPriceRequest {
 }
 
 message OrderBookModificationResponse {
-  customProtoTypes.ResponseStatus status = 1;
+  customProtoTypes.Status status= 1;
   google.protobuf.Timestamp effectiveFrom = 2;
 }
 
 message PriceResponse {
-  customProtoTypes.ResponseStatus status = 1;
+   customProtoTypes.Status status = 1;
    google.protobuf.Timestamp validAt = 2;
    customProtoTypes.DecimalValue price = 3;
 }

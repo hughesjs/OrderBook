@@ -1,5 +1,6 @@
 using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
 using OrderBookProtos.ServiceBases;
 using OrderBookService.Application.Misc;
 using OrderBookService.Domain.Entities;
@@ -40,8 +41,8 @@ internal class OrderBookService : IOrderBookService
 				   EffectiveFrom = effectiveFrom.ToTimestamp(),
 				   Status = new()
 							{
-								IsSuccess = true,
-								Message   = StaticStrings.SuccessMessage
+								Code    = (int)StatusCode.OK,
+								Message = StaticStrings.SuccessMessage
 							}
 			   };
 	}
@@ -60,8 +61,8 @@ internal class OrderBookService : IOrderBookService
 				   EffectiveFrom = effectiveFrom.ToTimestamp(),
 				   Status = new()
 							{
-								IsSuccess = true,
-								Message   = StaticStrings.SuccessMessage
+								Code    = (int)StatusCode.OK,
+								Message = StaticStrings.SuccessMessage
 							}
 			   };
 	}
@@ -78,8 +79,8 @@ internal class OrderBookService : IOrderBookService
 				   EffectiveFrom = effectiveFrom.ToTimestamp(),
 				   Status = new()
 							{
-								IsSuccess = true,
-								Message   = StaticStrings.SuccessMessage
+								Code    = (int)StatusCode.OK,
+								Message = StaticStrings.SuccessMessage
 							}
 			   };
 	}
@@ -108,8 +109,8 @@ internal class OrderBookService : IOrderBookService
 						 ValidAt = validAt.ToTimestamp(),
 						 Status = new()
 								  {
-									  IsSuccess = true,
-									  Message   = StaticStrings.SuccessMessage
+									  Code    = (int)StatusCode.OK,
+									  Message = StaticStrings.SuccessMessage
 								  }
 					 }
 				   : new()
@@ -118,8 +119,8 @@ internal class OrderBookService : IOrderBookService
 						 ValidAt = validAt.ToTimestamp(),
 						 Status = new()
 								  {
-									  IsSuccess = false,
-									  Message   = StaticStrings.UnsatisfiableOrderMessage
+									  Code    = (int)StatusCode.Internal,
+									  Message = StaticStrings.UnsatisfiableOrderMessage
 								  }
 					 };
 	}

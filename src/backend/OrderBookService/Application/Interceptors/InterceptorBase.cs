@@ -6,7 +6,7 @@ namespace OrderBookService.Application.Interceptors;
 
 public abstract class InterceptorBase: Interceptor
 {
-	protected TResponse MapResponse<TRequest, TResponse>(ResponseStatus responseStatus)
+	protected TResponse MapResponse<TRequest, TResponse>(Status responseStatus)
 	{
 		TResponse concreteResponse = Activator.CreateInstance<TResponse>();
         

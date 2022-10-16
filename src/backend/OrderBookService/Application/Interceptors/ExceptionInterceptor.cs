@@ -3,6 +3,7 @@ using OrderBookProtos.CustomTypes;
 using OrderBookProtos.ServiceBases;
 using OrderBookService.Application.Misc;
 using StackExchange.Redis;
+using Status = OrderBookProtos.CustomTypes.Status;
 
 namespace OrderBookService.Application.Interceptors;
 
@@ -34,9 +35,9 @@ public class ExceptionInterceptor: InterceptorBase
 
 			await WipeIdempotencyKey(request);
 			
-			ResponseStatus responseStatus = new()
+			Status responseStatus = new()
 											{
-												IsSuccess = false,
+												Code = (int)StatusCode.Internal,
 												// If this API was exposed publicly, we might want to make this a generic message
 												Message   = exception.Message 
 											};

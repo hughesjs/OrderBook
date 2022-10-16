@@ -1,4 +1,5 @@
 using AutoFixture;
+using Grpc.Core;
 using OrderBookProtos.ServiceBases;
 using OrderBookService.Application.Misc;
 using Shouldly;
@@ -22,7 +23,7 @@ public class ExceptionInterceptorTests: ApiTestBase
 	public async Task IfIThrowAnExceptionThenTheMessageIsReturned(RemoveOrderRequest req)
 	{
 		OrderBookModificationResponse? res = await client.RemoveOrderAsync(req);
-		res.Status.IsSuccess.ShouldBe(false);
+		res.Status.Code.ShouldBe((int)StatusCode.Internal);
 		res.Status.Message.ShouldBe(StaticStrings.FailedToDeleteNoOrderBookMessage);
 	}
 	

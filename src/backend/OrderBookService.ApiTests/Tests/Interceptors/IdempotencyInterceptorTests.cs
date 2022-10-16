@@ -1,4 +1,5 @@
 using AutoFixture;
+using Grpc.Core;
 using OrderBookProtos.ServiceBases;
 using OrderBookService.Application.Misc;
 using Shouldly;
@@ -23,9 +24,9 @@ public class IdempotencyTests: ApiTestBase
 	
 	{
 		OrderBookModificationResponse? res = await client.AddOrderAsync(req);
-		res.Status.IsSuccess.ShouldBe(true);
+		res.Status.Code.ShouldBe((int)StatusCode.OK);
 		res = await client.AddOrderAsync(req);
-		res.Status.IsSuccess.ShouldBe(false);
+		res.Status.Code.ShouldBe((int)StatusCode.InvalidArgument);
 		res.Status.Message.ShouldBe(StaticStrings.IdempotentOperationAlreadyCompleteMessage);
 	}
 

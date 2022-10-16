@@ -3,6 +3,7 @@ using OrderBookProtos.CustomTypes;
 using OrderBookProtos.ServiceBases;
 using OrderBookService.Application.Misc;
 using StackExchange.Redis;
+using Status = OrderBookProtos.CustomTypes.Status;
 
 namespace OrderBookService.Application.Interceptors;
 
@@ -34,10 +35,10 @@ public class IdempotencyInterceptor : InterceptorBase
 		
 		if (typeof(TRequest).GetProperty(nameof(AddOrModifyOrderRequest.IdempotencyKey))?.GetValue(request) is not GuidValue idempotencyKey)
 		{
-			ResponseStatus status = new()
+			Status status = new()
 									{
-										IsSuccess = false,
-										Message   = StaticStrings.NoIdempotencyKeyProvidedMessage
+										Code    = (int)StatusCode.InvalidArgument,
+										Message = StaticStrings.NoIdempotencyKeyProvidedMessage
 									};
 			return MapResponse<TRequest, TResponse>(status);
 		}
@@ -46,10 +47,10 @@ public class IdempotencyInterceptor : InterceptorBase
 
 		if (await _redis.KeyExistsAsync(redisKey))
 		{
-			ResponseStatus status = new()
+			Status status = new()
 									{
-										IsSuccess = false,
-										Message   = StaticStrings.IdempotentOperationAlreadyCompleteMessage
+										Code    = (int)StatusCode.InvalidArgument,
+										Message = StaticStrings.IdempotentOperationAlreadyCompleteMessage
 									};
 			return MapResponse<TRequest, TResponse>(status);
 		}

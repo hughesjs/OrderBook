@@ -1,4 +1,5 @@
 using AutoFixture;
+using Grpc.Core;
 using OrderBookProtos.CustomTypes;
 using OrderBookProtos.ServiceBases;
 using Shouldly;
@@ -36,7 +37,7 @@ public class OrderBookServiceTests: ApiTestBase
 			req.AssetDefinition = asset;
 
 			OrderBookModificationResponse? res = await _client.AddOrderAsync(req);
-			res.Status.IsSuccess.ShouldBe(true);
+			res.Status.Code.ShouldBe((int)StatusCode.OK);
 		}
 	}
 
@@ -51,7 +52,7 @@ public class OrderBookServiceTests: ApiTestBase
 			req.AssetDefinition = asset;
 
 			OrderBookModificationResponse? res = await _client.AddOrderAsync(req);
-			res.Status.IsSuccess.ShouldBe(true);
+			res.Status.Code.ShouldBe((int)StatusCode.OK);
 		}
 	}
 	
@@ -67,13 +68,13 @@ public class OrderBookServiceTests: ApiTestBase
 			req.AssetDefinition = asset;
 
 			OrderBookModificationResponse? res = await _client.AddOrderAsync(req);
-			res.Status.IsSuccess.ShouldBe(true);
+			res.Status.Code.ShouldBe((int)StatusCode.OK);
 
 			req.Price          = AutoFix.Create<DecimalValue>();
 			req.IdempotencyKey = new() {Value = Guid.NewGuid().ToString()};
 			res                = await _client.ModifyOrderAsync(req);
 			
-			res.Status.IsSuccess.ShouldBe(true);
+			res.Status.Code.ShouldBe((int)StatusCode.OK);
 		}
 	}
 	
@@ -88,7 +89,7 @@ public class OrderBookServiceTests: ApiTestBase
 			req.AssetDefinition = asset;
 
 			OrderBookModificationResponse? res = await _client.AddOrderAsync(req);
-			res.Status.IsSuccess.ShouldBe(true);
+			res.Status.Code.ShouldBe((int)StatusCode.OK);
 
 			RemoveOrderRequest remReq = new()
 										{
@@ -99,7 +100,7 @@ public class OrderBookServiceTests: ApiTestBase
 			
 			res       = await _client.RemoveOrderAsync(remReq);
 			
-			res.Status.IsSuccess.ShouldBe(true);
+			res.Status.Code.ShouldBe((int)StatusCode.OK);
 		}
 	}
 	
@@ -144,7 +145,7 @@ public class OrderBookServiceTests: ApiTestBase
 								  };
 
 			PriceResponse? priceRes = await _client.GetPriceAsync(req);
-			priceRes.Status.IsSuccess.ShouldBe(true);
+			priceRes.Status.Code.ShouldBe((int)StatusCode.OK);
 			((decimal)priceRes.Price).ShouldBe(expectedPrice, 0.1m);
 			(DateTime.UtcNow - priceRes.ValidAt.ToDateTime()).ShouldBeLessThan(TimeSpan.FromSeconds(10));
 		}
