@@ -1,0 +1,48 @@
+version: "3.1"
+
+services:
+
+  mongo:
+    hostname: mongo
+    image: mongo
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PW}
+    networks:
+      - backend
+
+  redis:
+    hostname: redis
+    image: "bitnami/redis:latest"
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    restart: unless-stopped
+    networks:
+      - backend
+  
+  orderbook:
+    build:
+      context: src
+      dockerfile: backend/Dockerfile
+    environment:
+      - MongoDbSettings__ConnectionString=mongodb://${MONGO_USER}:${MONGO_PW}
+      - MongoDbSettings__DatabaseName=OrderBooks
+      - RedisSettings__ConnectionString=redis:6379,password=${REDIS_PASSWORD}
+      # Set this to "Development" for gRPC reflection
+      - ASPNETCORE_ENVIRONMENT=${ENVIRONMENT}
+    depends_on:
+      - mongo
+      - redis
+    restart: unless-stopped
+    ports:
+      - "5237:80"
+    networks:
+      - backend
+      - frontend
+
+networks:
+  backend:
+    internal: true
+  frontend:
+    internal: false
+
