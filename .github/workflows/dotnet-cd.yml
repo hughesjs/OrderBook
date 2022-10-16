@@ -14,7 +14,11 @@ jobs:
       MONGO_PW: ${MONGO_PASS}
       MONGO_USER: ${MONGO_USER}
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-      #ENVIRONMENT: Development
+      ENVIRONMENT: Development
+      MONGO_HOST: mongo
+      MONGO_PORT: 27017
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     steps:
       - uses: actions/checkout@v3
       - name: Setup .NET
