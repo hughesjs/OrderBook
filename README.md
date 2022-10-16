@@ -17,6 +17,11 @@ High-performance trading order-book
 
 # Performance Testing Results
 
+## Get Price Tests
+100 orders in the table
+50 of them required to make a 50k order
+grpc_req_duration....: avg=17.54ms min=892.73µs med=1.62ms max=465.69ms p(90)=2.81ms p(95)=9.96ms
+
 # Future Developments
 
 # Notes
