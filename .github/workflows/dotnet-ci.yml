@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  unit-test:
+  unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
     steps:
@@ -19,8 +19,21 @@ jobs:
           dotnet-quality: 'preview'
       - name: Run unit tests
         run: dotnet test --logger GitHubActions ./src/backend/OrderBookService.UnitTests/OrderBookService.UnitTests.csproj
-  
-  api-test:     
+        
+  integration-tests:
+    name: Api Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+          dotnet-quality: 'preview'
+      - name: Run API tests
+        run: dotnet test --logger GitHubActions ./src/backend/OrderBookService.IntegrationTests/OrderBookService.IntegrationTests.csproj
+
+  api-tests:     
     name: Api Tests
     runs-on: ubuntu-latest
     steps:
