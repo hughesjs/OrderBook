@@ -27,6 +27,8 @@ services:
       - MongoDbSettings__ConnectionString=mongodb://${MONGO_USER}:${MONGO_PW}
       - MongoDbSettings__DatabaseName=OrderBooks
       - RedisSettings__ConnectionString=redis:6379,password=${REDIS_PASSWORD}
+      # Set this to "Development" for gRPC reflection
+      - ASPNETCORE_ENVIRONMENT=${ENVIRONMENT}
     depends_on:
       - mongo
       - redis
