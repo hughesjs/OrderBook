@@ -13,11 +13,11 @@ public class OrderBookServiceTests: ApiTestBase
 	
 	private const int NumTestEntries = 25;
 	
-	private readonly OrderBookProtos.ServiceBases.OrderBookService.OrderBookServiceClient client;
+	private readonly OrderBookProtos.ServiceBases.OrderBookService.OrderBookServiceClient _client;
 
-	public OrderBookServiceTests(OrderBookTestFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+	public OrderBookServiceTests(OrderBookTestFixture testFixture, ITestOutputHelper outputHelper) : base(testFixture, outputHelper)
 	{
-		client = new(Channel);
+		_client = new(Channel);
 	}
 
 	[Fact]
@@ -32,10 +32,10 @@ public class OrderBookServiceTests: ApiTestBase
 
 		for (int i = 0; i < NumTestEntries; i++)
 		{
-			AddOrModifyOrderRequest req = AutoFixture.Create<AddOrModifyOrderRequest>();
+			AddOrModifyOrderRequest req = AutoFix.Create<AddOrModifyOrderRequest>();
 			req.AssetDefinition = asset;
 
-			OrderBookModificationResponse? res = await client.AddOrderAsync(req);
+			OrderBookModificationResponse? res = await _client.AddOrderAsync(req);
 			res.Status.IsSuccess.ShouldBe(true);
 		}
 	}
@@ -43,14 +43,14 @@ public class OrderBookServiceTests: ApiTestBase
 	[Fact]
 	public async Task GivenCollectionDoesNotExistThenAddingAnOrderCreatesIt()
 	{
-		AssetDefinitionValue asset = AutoFixture.Create<AssetDefinitionValue>();
+		AssetDefinitionValue asset = AutoFix.Create<AssetDefinitionValue>();
 		
 		for (int i = 0; i < NumTestEntries; i++)
 		{
-			AddOrModifyOrderRequest req = AutoFixture.Create<AddOrModifyOrderRequest>();
+			AddOrModifyOrderRequest req = AutoFix.Create<AddOrModifyOrderRequest>();
 			req.AssetDefinition = asset;
 
-			OrderBookModificationResponse? res = await client.AddOrderAsync(req);
+			OrderBookModificationResponse? res = await _client.AddOrderAsync(req);
 			res.Status.IsSuccess.ShouldBe(true);
 		}
 	}
@@ -59,19 +59,19 @@ public class OrderBookServiceTests: ApiTestBase
 	[Fact]
 	public async Task GivenOrderExistsThenWeCanModifyIt()
 	{
-		AssetDefinitionValue    asset = AutoFixture.Create<AssetDefinitionValue>();
+		AssetDefinitionValue    asset = AutoFix.Create<AssetDefinitionValue>();
 		
 		for (int i = 0; i < NumTestEntries; i++)
 		{
-			AddOrModifyOrderRequest req = AutoFixture.Create<AddOrModifyOrderRequest>();
+			AddOrModifyOrderRequest req = AutoFix.Create<AddOrModifyOrderRequest>();
 			req.AssetDefinition = asset;
 
-			OrderBookModificationResponse? res = await client.AddOrderAsync(req);
+			OrderBookModificationResponse? res = await _client.AddOrderAsync(req);
 			res.Status.IsSuccess.ShouldBe(true);
 
-			req.Price          = AutoFixture.Create<DecimalValue>();
+			req.Price          = AutoFix.Create<DecimalValue>();
 			req.IdempotencyKey = new() {Value = Guid.NewGuid().ToString()};
-			res                = await client.ModifyOrderAsync(req);
+			res                = await _client.ModifyOrderAsync(req);
 			
 			res.Status.IsSuccess.ShouldBe(true);
 		}
@@ -80,37 +80,38 @@ public class OrderBookServiceTests: ApiTestBase
 	[Fact]
 	public async Task GivenOrderExistsTheWeCanRemoveIt()
 	{
-		AssetDefinitionValue asset = AutoFixture.Create<AssetDefinitionValue>();
+		AssetDefinitionValue asset = AutoFix.Create<AssetDefinitionValue>();
 		
 		for (int i = 0; i < NumTestEntries; i++)
 		{
-			AddOrModifyOrderRequest req = AutoFixture.Create<AddOrModifyOrderRequest>();
+			AddOrModifyOrderRequest req = AutoFix.Create<AddOrModifyOrderRequest>();
 			req.AssetDefinition = asset;
 
-			OrderBookModificationResponse? res = await client.AddOrderAsync(req);
+			OrderBookModificationResponse? res = await _client.AddOrderAsync(req);
 			res.Status.IsSuccess.ShouldBe(true);
 
 			RemoveOrderRequest remReq = new()
 										{
 											AssetDefinition = asset,
-											IdempotencyKey  = AutoFixture.Create<GuidValue>(),
+											IdempotencyKey  = AutoFix.Create<GuidValue>(),
 											OrderId         = req.OrderId
 										};
 			
-			res       = await client.RemoveOrderAsync(remReq);
+			res       = await _client.RemoveOrderAsync(remReq);
 			
 			res.Status.IsSuccess.ShouldBe(true);
 		}
 	}
 	
+	//TODO this should be a tdg
 	[Fact]
 	public async Task GivenOrderIsSatisfiableThenWeCanGetAPrice()
 	{
 		for (int i = 0; i < NumTestEntries; i++)
 		{
-			AssetDefinitionValue asset = AutoFixture.Create<AssetDefinitionValue>();
+			AssetDefinitionValue asset = AutoFix.Create<AssetDefinitionValue>();
 			
-			OrderAction action             = AutoFixture.Create<OrderAction>();
+			OrderAction action             = AutoFix.Create<OrderAction>();
 			decimal     amount             = PositiveDecimal();
 			decimal     basePrice          = PositiveDecimal();
 			decimal[]   amountCoefficients = GetAmountCoefficients();
@@ -124,15 +125,15 @@ public class OrderBookServiceTests: ApiTestBase
 																								  OrderAction     = action == OrderAction.Buy ? OrderAction.Sell : OrderAction.Buy,
 																								  Amount          = j      != amountCoefficients.Length - 1 ? amount* t : amount* t + 0.5m, // Ensure there's a surplus
 																								  AssetDefinition = asset,
-																								  IdempotencyKey  = new(){Value = Guid.NewGuid().ToString()},
-																								  OrderId         = new(){Value = Guid.NewGuid().ToString()},
+																								  IdempotencyKey  = AutoFix.Create<GuidValue>(),
+																								  OrderId         = AutoFix.Create<GuidValue>(),
 																								  Price           = basePrice*priceCoefficients[j]
 
 																							  }).ToList();
-
-			foreach (var request in orderRequests)
+			
+			foreach (AddOrModifyOrderRequest request in orderRequests)
 			{
-				await client.AddOrderAsync(request);
+				await _client.AddOrderAsync(request);
 			}
 			
 			GetPriceRequest req = new()
@@ -142,14 +143,14 @@ public class OrderBookServiceTests: ApiTestBase
 									  OrderAction     = action
 								  };
 
-			PriceResponse? priceRes = await client.GetPriceAsync(req);
+			PriceResponse? priceRes = await _client.GetPriceAsync(req);
 			priceRes.Status.IsSuccess.ShouldBe(true);
 			((decimal)priceRes.Price).ShouldBe(expectedPrice, 0.1m);
 			(DateTime.UtcNow - priceRes.ValidAt.ToDateTime()).ShouldBeLessThan(TimeSpan.FromSeconds(10));
 		}
 	}
 	
-	private static decimal PositiveDecimal() => decimal.Abs(AutoFixture.Create<decimal>());
+	private static decimal PositiveDecimal() => decimal.Abs(AutoFix.Create<decimal>());
 
 	private static decimal[] GetAmountCoefficients()
 	{

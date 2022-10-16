@@ -12,7 +12,7 @@ public class IdempotencyTests: ApiTestBase
 	
 	private readonly OrderBookProtos.ServiceBases.OrderBookService.OrderBookServiceClient client;
 
-	public IdempotencyTests(OrderBookTestFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+	public IdempotencyTests(OrderBookTestFixture testFixture, ITestOutputHelper outputHelper) : base(testFixture, outputHelper)
 	{
 		client = new(Channel);
 	}
@@ -28,17 +28,6 @@ public class IdempotencyTests: ApiTestBase
 		res.Status.IsSuccess.ShouldBe(false);
 		res.Status.Message.ShouldBe(StaticStrings.IdempotentOperationAlreadyCompleteMessage);
 	}
-	
-	[Theory]
-	[MemberData(nameof(GetModifyOrderRequests), NumTests)]
-	public async Task IfIDontIncludeAKeyInAnIdempotentRequestTwiceThenItIsRejected(AddOrModifyOrderRequest req)
 
-	{
-		req.IdempotencyKey = null;
-		OrderBookModificationResponse? res = await client.AddOrderAsync(req);
-		res.Status.IsSuccess.ShouldBe(false);
-		res.Status.Message.ShouldBe(StaticStrings.NoIdempotencyKeyProvidedMessage);
-	}
-	
-	public static IEnumerable<object[]> GetModifyOrderRequests(int num) => AutoFixture.CreateMany<AddOrModifyOrderRequest>(num).Select(or => new object[] {or});
+	public static IEnumerable<object[]> GetModifyOrderRequests(int num) => AutoFix.CreateMany<AddOrModifyOrderRequest>(num).Select(or => new object[] {or});
 }

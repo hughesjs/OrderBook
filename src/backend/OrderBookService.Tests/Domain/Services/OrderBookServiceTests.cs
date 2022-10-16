@@ -1,3 +1,4 @@
+using System.Net;
 using AutoFixture;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
@@ -115,7 +116,7 @@ public class OrderBookServiceTests
 	}
 
 	[Theory]
-	[MemberData(nameof(GetPriceTestData), NumTests)]
+	[MemberData(nameof(GetPriceTestData))]
 	internal async Task GivenAnOrderBookThenPriceIsSuccessfullyCalculated(GetPriceTestCase testCase)
 	{
 		_ = _mockOrderBookRepository.GetSingleAsync(Arg.Any<AssetDefinition>()).Returns(testCase.OrderBookEntity);
@@ -144,7 +145,7 @@ public class OrderBookServiceTests
 	// }
 
 	[Theory]
-	[MemberData(nameof(GetModifyOrderRequests), NumTests)]
+	[MemberData(nameof(GetModifyOrderRequests))]
 	public async Task WhenOrderIsAddedSuccessfullyThenItReturnsSuccess(AddOrModifyOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.AddOrderToOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
@@ -155,7 +156,7 @@ public class OrderBookServiceTests
 	}
 
 	[Theory]
-	[MemberData(nameof(GetModifyOrderRequests), NumTests)]
+	[MemberData(nameof(GetModifyOrderRequests))]
 	public async Task WhenOrderIsAddedThenEffectiveTimeIsSetToUtcNow(AddOrModifyOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.AddOrderToOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
@@ -166,7 +167,7 @@ public class OrderBookServiceTests
 	}
 
 	[Theory]
-	[MemberData(nameof(GetModifyOrderRequests), NumTests)]
+	[MemberData(nameof(GetModifyOrderRequests))]
 	public async Task WhenOrderIsModifiedSuccessfullyThenItReturnsSuccess(AddOrModifyOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
@@ -177,7 +178,7 @@ public class OrderBookServiceTests
 	}
 
 	[Theory]
-	[MemberData(nameof(GetModifyOrderRequests), NumTests)]
+	[MemberData(nameof(GetModifyOrderRequests))]
 	public async Task WhenOrderIsModifiedSuccessfullyThenEffectiveTimeIsSetToUtcNow(AddOrModifyOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
@@ -188,7 +189,7 @@ public class OrderBookServiceTests
 	}
 
 	[Theory]
-	[MemberData(nameof(GetRemoveOrderRequests), NumTests)]
+	[MemberData(nameof(GetRemoveOrderRequests))]
 	public async Task WhenOrderIsRemovedSuccessfullyThenItReturnsSuccess(RemoveOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
@@ -199,7 +200,7 @@ public class OrderBookServiceTests
 	}
 
 	[Theory]
-	[MemberData(nameof(GetRemoveOrderRequests), NumTests)]
+	[MemberData(nameof(GetRemoveOrderRequests))]
 	public async Task WhenOrderIsRemovedSuccessfullyThenEffectiveTimeIsSetToUtcNow(RemoveOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
@@ -209,10 +210,10 @@ public class OrderBookServiceTests
 		(DateTime.UtcNow - res.EffectiveFrom.ToDateTime()).ShouldBeLessThan(TimeSpan.FromSeconds(10));
 	}
 
-	public static IEnumerable<object[]> GetModifyOrderRequests(int num) => Fixture.CreateMany<AddOrModifyOrderRequest>(num).Select(or => new object[] {or});
-	public static IEnumerable<object[]> GetRemoveOrderRequests(int num) => Fixture.CreateMany<RemoveOrderRequest>(num).Select(or => new object[] {or});
+	public static IEnumerable<object[]> GetModifyOrderRequests() => Fixture.CreateMany<AddOrModifyOrderRequest>(NumTests).Select(or => new object[] {or});
+	public static IEnumerable<object[]> GetRemoveOrderRequests() => Fixture.CreateMany<RemoveOrderRequest>(NumTests).Select(or => new object[] {or});
 
-	public static IEnumerable<object[]> GetPriceTestData(int num)
+	public static IEnumerable<object[]> GetPriceTestData()
 	{
 		AssetDefinition assetDefinition = Fixture.Create<AssetDefinition>();
 
@@ -221,7 +222,7 @@ public class OrderBookServiceTests
 		// This is admittedly more complex than I'd usually make a test-case
 		// But I was having fun, and it's mathematically rigourous (see readme)
 		// I did start off simple and iterate
-		for (int i = 0; i < num; i++)
+		for (int i = 0; i < NumTests; i++)
 		{
 			OrderAction action             = Fixture.Create<OrderAction>();
 			decimal     amount             = PositiveDecimal();

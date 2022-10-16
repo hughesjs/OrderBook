@@ -8,23 +8,23 @@ namespace OrderBookService.ApiTests;
 
 public class ApiTestBase : IClassFixture<OrderBookTestFixture>, IDisposable
 {
-	private OrderBookTestFixture Fixture { get; }
+	private OrderBookTestFixture TestFixture { get; }
 	
 	private   LoggerFactory        LoggerFactory { get; }
 	private   GrpcChannel?         _channel;
 
-	protected static Fixture AutoFixture { get; } = new();
+	protected static Fixture AutoFix { get; } = new();
 
 	static ApiTestBase()
 	{
-		AutoFixture.Customize<GuidValue>(c => c.With(p => p.Value, () => Guid.NewGuid().ToString()));
+		AutoFix.Customize<GuidValue>(c => c.With(p => p.Value, () => Guid.NewGuid().ToString()));
 	}
 	
 	
-	protected ApiTestBase(OrderBookTestFixture fixture, ITestOutputHelper outputHelper)
+	protected ApiTestBase(OrderBookTestFixture testFixture, ITestOutputHelper outputHelper)
 	{
 		LoggerFactory = new();
-		Fixture       = fixture;
+		TestFixture       = testFixture;
 	}
 	
 	protected GrpcChannel Channel => _channel ??= CreateChannel();
@@ -34,7 +34,7 @@ public class ApiTestBase : IClassFixture<OrderBookTestFixture>, IDisposable
 		return GrpcChannel.ForAddress("http://localhost", new()
 														  {
 															  LoggerFactory = LoggerFactory,
-															  HttpHandler   = Fixture.Handler
+															  HttpHandler   = TestFixture.Handler
 														  });
 	}
 

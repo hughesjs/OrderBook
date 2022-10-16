@@ -1,3 +1,4 @@
+using Calzolari.Grpc.AspNetCore.Validation;
 using OrderBookService.Domain.Repositories.Mongo.OrderBooks;
 using OrderBookService.Domain.Services;
 using OrderBookService.Exceptions;
@@ -17,6 +18,10 @@ public static class ServiceCollectionExtensions
 		services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 		
 		services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+		services.AddGrpcValidation();
+		
+		services.AddValidators();
 
 		return services;
 	}

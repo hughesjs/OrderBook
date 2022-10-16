@@ -26,7 +26,6 @@
 
     <ItemGroup>
       <Folder Include="Application\Protobuf" />
-      <Folder Include="Application\Validation" />
       <Folder Include="Domain\Models" />
     </ItemGroup>
 
