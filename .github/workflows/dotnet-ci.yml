@@ -23,6 +23,10 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-latest
+    env:
+      MongoDbSettings__ConnectionString: mongodb://root:pass@localhost:27017
+      MongoDbSettings__DatabaseName: OrderBooks
+      RedisSettings__ConnectionString: redis:6379
     steps:
       - uses: actions/checkout@v3
       - name: Setup .NET

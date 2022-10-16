@@ -31,11 +31,12 @@ public class ApiTestBase : IClassFixture<OrderBookTestFixture>, IDisposable
 
 	private GrpcChannel CreateChannel()
 	{
-		return GrpcChannel.ForAddress("http://localhost", new()
-														  {
-															  LoggerFactory = LoggerFactory,
-															  HttpHandler   = TestFixture.Handler
-														  });
+		string connectionString = Environment.GetEnvironmentVariable("API_TEST_CONNECTION_STRING") ?? "http://localhost";
+		return GrpcChannel.ForAddress(connectionString, new()
+														{
+															LoggerFactory = LoggerFactory,
+															HttpHandler   = TestFixture.Handler
+														});
 	}
 
 	public void Dispose()

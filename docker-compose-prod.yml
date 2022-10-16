@@ -3,6 +3,7 @@ version: "3.1"
 services:
 
   mongo:
+    hostname: mongo
     image: mongo
     restart: unless-stopped
     environment:
