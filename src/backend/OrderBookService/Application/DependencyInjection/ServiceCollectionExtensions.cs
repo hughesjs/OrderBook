@@ -1,7 +1,7 @@
 using Calzolari.Grpc.AspNetCore.Validation;
+using OrderBookService.Application.Exceptions;
 using OrderBookService.Domain.Repositories.Mongo.OrderBooks;
 using OrderBookService.Domain.Services;
-using OrderBookService.Exceptions;
 using StackExchange.Redis;
 
 namespace OrderBookService.DependencyInjection;

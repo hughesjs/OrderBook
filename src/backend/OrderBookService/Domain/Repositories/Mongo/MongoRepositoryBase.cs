@@ -4,7 +4,7 @@ using MongoDB.Driver;
 using OrderBookService.Application.Config;
 using OrderBookService.Domain.Entities;
 
-namespace OrderBookService.Domain.Repositories;
+namespace OrderBookService.Domain.Repositories.Mongo;
 
 internal abstract class MongoRepositoryBase<TDocument, TKey>
 {

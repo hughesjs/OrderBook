@@ -2,11 +2,10 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using OrderBookService.Application.Config;
+using OrderBookService.Application.Exceptions;
 using OrderBookService.Application.Misc;
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
-using OrderBookService.Domain.Models.OrderBooks;
-using OrderBookService.Exceptions;
 
 namespace OrderBookService.Domain.Repositories.Mongo.OrderBooks;
 
@@ -71,9 +70,9 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 							  };
 		UpdateDefinition<OrderBookEntity>? update = Builders<OrderBookEntity>.Update.Set("Orders.$", order );
 		
-		IMongoCollection<OrderBookEntity>  collection = GetCollection(asset);
-		UpdateResult?                      res        = await collection.UpdateOneAsync(filter, update);
-		bool                               success    = (res is not null && res.ModifiedCount > 0);
+		IMongoCollection<OrderBookEntity> collection = GetCollection(asset);
+		UpdateResult?                     res        = await collection.UpdateOneAsync(filter, update);
+		bool                              success    = res is not null && res.ModifiedCount > 0;
 
 		if (success)
 		{
@@ -87,9 +86,9 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 	{
 		if (!(await CollectionExistsAsync(asset.Class.ToString()) && await OrderBookExists(asset, collection)))
 		{
-			throw new FailedToDeleteOrderException("Failed to update order, OrderBook does not exist", orderId, asset);
+			throw new FailedToModifyOrDeleteOrderException(StaticStrings.FailedToModifyOrDeleteNoOrderBookMessage, orderId, asset);
 		}
-		throw new FailedToDeleteOrderException("Failed to update order, OrderId does not exist", orderId, asset);
+		throw new FailedToModifyOrDeleteOrderException(StaticStrings.FailedToModifyOrDeleteOrderIdNonExistent, orderId, asset);
 	}
 
 	public async Task RemoveOrderFromBook(AssetDefinition asset, string orderId)
@@ -112,12 +111,16 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 	{
 		if (!(await CollectionExistsAsync(asset.Class.ToString()) && await OrderBookExists(asset, collection)))
 		{
-			throw new FailedToDeleteOrderException(StaticStrings.FailedToDeleteNoOrderBookMessage, orderId, asset);
+			throw new FailedToModifyOrDeleteOrderException(StaticStrings.FailedToModifyOrDeleteNoOrderBookMessage, orderId, asset);
 		}
-		throw new FailedToDeleteOrderException(StaticStrings.FailedToDeleteOrderIdNonExistent, orderId, asset);
+		throw new FailedToModifyOrDeleteOrderException(StaticStrings.FailedToModifyOrDeleteOrderIdNonExistent, orderId, asset);
 	}
 
-	private async Task<bool> OrderBookExists(AssetDefinition asset, IMongoCollection<OrderBookEntity> collection) => await (await collection.FindAsync(d => d.UnderlyingAsset == asset)).AnyAsync();
+	private async Task<bool> OrderBookExists(AssetDefinition asset, IMongoCollection<OrderBookEntity> collection)
+	{
+		IAsyncCursor<OrderBookEntity>? res = await collection.FindAsync(d => d.UnderlyingAsset == asset);
+		return await res.AnyAsync();
+	}
 
 
 	private IMongoCollection<OrderBookEntity> GetCollection(AssetDefinition asset) => Database.GetCollection<OrderBookEntity>(asset.Class.ToString());

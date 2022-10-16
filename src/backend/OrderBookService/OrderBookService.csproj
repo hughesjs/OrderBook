@@ -8,7 +8,8 @@
     
     <ItemGroup>
         <!-- Deliberately not making internals visible to the API tests -->
-        <InternalsVisibleTo Include="OrderBookService.Tests" />
+        <InternalsVisibleTo Include="OrderBookService.UnitTests" />
+        <InternalsVisibleTo Include="OrderBookService.IntegrationTests" />
         <InternalsVisibleTo Include="OrderBookService.Benchmarks" />
         <!-- NSub in Unit Test project needs this -->
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />

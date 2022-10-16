@@ -1,4 +1,4 @@
-namespace OrderBookService.Exceptions;
+namespace OrderBookService.Application.Exceptions;
 
 public class ConfigurationException: Exception
 {
