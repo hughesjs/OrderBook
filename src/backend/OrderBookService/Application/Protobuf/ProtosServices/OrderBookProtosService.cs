@@ -2,7 +2,7 @@ using Grpc.Core;
 using OrderBookProtos.ServiceBases;
 using OrderBookService.Domain.Services;
 
-namespace OrderBookService.Services.ProtosServices;
+namespace OrderBookService.Application.Protobuf.ProtosServices;
 
 internal class OrderBookProtosService: OrderBookProtos.ServiceBases.OrderBookService.OrderBookServiceBase
 {

@@ -1,11 +1,12 @@
 using AutoFixture;
 using Grpc.Core;
 using OrderBookProtos.ServiceBases;
+using OrderBookService.ApiTests.TestInfrastructure;
 using OrderBookService.Application.Misc;
 using Shouldly;
 using Xunit.Abstractions;
 
-namespace OrderBookService.ApiTests;
+namespace OrderBookService.ApiTests.Tests.Interceptors;
 
 public class ExceptionInterceptorTests: ApiTestBase
 {
