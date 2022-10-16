@@ -1,6 +1,7 @@
 using System.Net;
 using AutoFixture;
 using AutoMapper;
+using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OrderBookProtos.CustomTypes;
@@ -17,7 +18,6 @@ public class OrderBookServiceTests
 {
 	private const           int                           NumTests         = 100;
 	private static readonly Fixture                       Fixture          = new(); // Static so data gens can access
-	private static readonly OrderBookModificationResponse _successResponse = new() {Status = new() {IsSuccess = true, Message = "Success"}};
 
 	private readonly IOrderBookService    _orderBookService;
 	private readonly IOrderBookRepository _mockOrderBookRepository;
@@ -152,7 +152,7 @@ public class OrderBookServiceTests
 
 		OrderBookModificationResponse res = await _orderBookService.AddOrder(request);
 
-		res.Status.IsSuccess.ShouldBe(true);
+		res.Status.Code.ShouldBe((int)StatusCode.OK);
 	}
 
 	[Theory]
@@ -174,7 +174,7 @@ public class OrderBookServiceTests
 
 		OrderBookModificationResponse res = await _orderBookService.ModifyOrder(request);
 
-		res.Status.IsSuccess.ShouldBe(true);
+		res.Status.Code.ShouldBe((int)StatusCode.OK);
 	}
 
 	[Theory]
@@ -196,7 +196,7 @@ public class OrderBookServiceTests
 
 		OrderBookModificationResponse res = await _orderBookService.RemoveOrder(request);
 
-		res.Status.IsSuccess.ShouldBe(true);
+		res.Status.Code.ShouldBe((int)StatusCode.OK);
 	}
 
 	[Theory]
