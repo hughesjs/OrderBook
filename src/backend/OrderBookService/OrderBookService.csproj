@@ -4,6 +4,7 @@
         <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <RuntimeIdentifiers>linux-x64;win-x64;osx-x64</RuntimeIdentifiers>
     </PropertyGroup>
     
     <ItemGroup>
@@ -22,6 +23,7 @@
         <PackageReference Include="Grpc.AspNetCore" Version="2.49.0" />
         <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.49.0" />
         <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
+        <PackageReference Include="Microsoft.NET.Build.Containers" Version="0.1.8" />
         <PackageReference Include="MongoDB.Driver" Version="2.17.1" />
         <PackageReference Include="StackExchange.Redis" Version="2.6.66" />
     </ItemGroup>
