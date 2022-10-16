@@ -6,8 +6,9 @@ const client = new grpc.Client();
 client.load(['../shared/protos', '../backend/OrderBookService'], 'orderbook.proto');
 
 export default () => {
-
-    client.connect('localhost:5237', {
+    const address = "orderbook:80";
+    
+    client.connect(address, {
         plaintext: true
     });
 
@@ -21,21 +22,22 @@ export default () => {
         },
         amount: {
             nanos: '12',
-            units: '12'
+            units: Math.floor(Math.random() * 1000)
         },
         price: {
             nanos: '20',
-            units: '25000'
+            units: Math.floor(Math.random() * 1000)
         },
         orderAction: 'Sell',
+        orderId: {
+            value: 'bd4e8c80-bb51-4aff-a6ba-7e5afb131ec0'
+        }
     }
 
-    const response = client.invoke('orderBook.OrderBookService/AddOrder', data);
+    const response = client.invoke('orderBook.OrderBookService/ModifyOrder', data);
 
     check(response, {
-
         'status is OK': (r) => r && r.status === grpc.StatusOK,
-
     });
 
 

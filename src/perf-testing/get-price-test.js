@@ -6,8 +6,9 @@ const client = new grpc.Client();
 client.load(['../shared/protos', '../backend/OrderBookService'], 'orderbook.proto');
 
 export default () => {
-
-    client.connect('localhost:5237', {
+    const address = "orderbook:80";
+    
+    client.connect(address, {
         plaintext: true
     });
 
