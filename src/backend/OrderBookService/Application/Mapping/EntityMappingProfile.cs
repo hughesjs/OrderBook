@@ -19,8 +19,12 @@ public class EntityMappingProfile: Profile
 		   .ForMember(dest => dest.Orders, opt => opt.MapFrom(s => s.Orders.AsReadOnly()));
 
 		CreateMap<Order, OrderEntity>().ReverseMap();
-		CreateMap<AddOrModifyOrderRequest, OrderEntity>()
+		CreateMap<ModifyOrderRequest, OrderEntity>()
 		   .ForMember(dest => dest.Id, opt => opt.MapFrom(s => s.OrderId.Value))
+		   .ForMember(dest => dest.EffectiveTime, opt => opt.Ignore());
+		
+		CreateMap<AddOrderRequest, OrderEntity>()
+		   .ForMember(dest => dest.Id,            opt => opt.Ignore())
 		   .ForMember(dest => dest.EffectiveTime, opt => opt.Ignore());
 	}
 }

@@ -6,12 +6,11 @@ using OrderBookService.Application.Misc;
 namespace OrderBookService.Application.Validation;
 
 [UsedImplicitly]
-public class AddOrModifyOrderRequestValidator: AbstractValidator<AddOrModifyOrderRequest>
+public class AddOrderRequestValidator: AbstractValidator<AddOrderRequest>
 {
-	public AddOrModifyOrderRequestValidator()
+	public AddOrderRequestValidator()
 	{
 		RuleFor(request => request.IdempotencyKey).NotEmpty();
-		RuleFor(request => request.OrderId).NotEmpty();
 		RuleFor(request => request.AssetDefinition).NotEmpty();
 		RuleFor(request => request.AssetDefinition.Class).IsInEnum();
 		RuleFor(request => request.AssetDefinition.Symbol).NotEmpty();

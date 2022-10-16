@@ -16,11 +16,11 @@ internal class OrderBookProtosService: OrderBookProtos.ServiceBases.OrderBookSer
 	}
 
 
-	public override async Task<OrderBookModificationResponse> AddOrder(AddOrModifyOrderRequest request, ServerCallContext context) => await _orderBookService.AddOrder(request);
+	public override async Task<AddOrderResponse> AddOrder(AddOrderRequest request, ServerCallContext context) => await _orderBookService.AddOrder(request);
 
-	public override async Task<OrderBookModificationResponse> ModifyOrder(AddOrModifyOrderRequest request, ServerCallContext context) => await _orderBookService.ModifyOrder(request);
+	public override async Task<ModifyOrderResponse> ModifyOrder(ModifyOrderRequest request, ServerCallContext context) => await _orderBookService.ModifyOrder(request);
 
-	public override async Task<OrderBookModificationResponse> RemoveOrder(RemoveOrderRequest request, ServerCallContext context) => await _orderBookService.RemoveOrder(request);
+	public override async Task<ModifyOrderResponse> RemoveOrder(RemoveOrderRequest request, ServerCallContext context) => await _orderBookService.RemoveOrder(request);
 
 	public override async Task<PriceResponse> GetPrice(GetPriceRequest request, ServerCallContext context) => await _orderBookService.GetPrice(request);
 }

@@ -20,15 +20,15 @@ public class IdempotencyTests: ApiTestBase
 
 	[Theory]
 	[MemberData(nameof(GetModifyOrderRequests), NumTests)]
-	public async Task IfISendTheSameIdempotentRequestTwiceThenItIsRejected(AddOrModifyOrderRequest req)
+	public async Task IfISendTheSameIdempotentRequestTwiceThenItIsRejected(AddOrderRequest req)
 	
 	{
-		OrderBookModificationResponse? res = await client.AddOrderAsync(req);
+		AddOrderResponse? res = await client.AddOrderAsync(req);
 		res.Status.Code.ShouldBe((int)StatusCode.OK);
 		res = await client.AddOrderAsync(req);
 		res.Status.Code.ShouldBe((int)StatusCode.InvalidArgument);
 		res.Status.Message.ShouldBe(StaticStrings.IdempotentOperationAlreadyCompleteMessage);
 	}
 
-	public static IEnumerable<object[]> GetModifyOrderRequests(int num) => AutoFix.CreateMany<AddOrModifyOrderRequest>(num).Select(or => new object[] {or});
+	public static IEnumerable<object[]> GetModifyOrderRequests(int num) => AutoFix.CreateMany<AddOrderRequest>(num).Select(or => new object[] {or});
 }

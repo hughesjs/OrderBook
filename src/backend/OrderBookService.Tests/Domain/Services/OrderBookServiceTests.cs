@@ -145,45 +145,57 @@ public class OrderBookServiceTests
 	// }
 
 	[Theory]
-	[MemberData(nameof(GetModifyOrderRequests))]
-	public async Task WhenOrderIsAddedSuccessfullyThenItReturnsSuccess(AddOrModifyOrderRequest request)
+	[MemberData(nameof(GetAddOrderRequests))]
+	public async Task WhenOrderIsAddedSuccessfullyThenItReturnsSuccess(AddOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.AddOrderToOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
 
-		OrderBookModificationResponse res = await _orderBookService.AddOrder(request);
+		AddOrderResponse res = await _orderBookService.AddOrder(request);
 
 		res.Status.Code.ShouldBe((int)StatusCode.OK);
 	}
 
 	[Theory]
-	[MemberData(nameof(GetModifyOrderRequests))]
-	public async Task WhenOrderIsAddedThenEffectiveTimeIsSetToUtcNow(AddOrModifyOrderRequest request)
+	[MemberData(nameof(GetAddOrderRequests))]
+	public async Task WhenOrderIsAddedThenEffectiveTimeIsSetToUtcNow(AddOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.AddOrderToOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
 
-		OrderBookModificationResponse res = await _orderBookService.AddOrder(request);
+		AddOrderResponse res = await _orderBookService.AddOrder(request);
 
 		(DateTime.UtcNow - res.EffectiveFrom.ToDateTime()).ShouldBeLessThan(TimeSpan.FromSeconds(10));
 	}
+	
+	[Theory]
+	[MemberData(nameof(GetAddOrderRequests))]
+	public async Task WhenOrderIsAddedThenOrderIdIsReturned(AddOrderRequest request)
+	{
+		_ = _mockOrderBookRepository.AddOrderToOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
+
+		AddOrderResponse res = await _orderBookService.AddOrder(request);
+
+		Guid.TryParse(res.OrderId.Value, out Guid guid).ShouldBeTrue();
+		guid.ShouldNotBe(Guid.Empty);
+	}
 
 	[Theory]
 	[MemberData(nameof(GetModifyOrderRequests))]
-	public async Task WhenOrderIsModifiedSuccessfullyThenItReturnsSuccess(AddOrModifyOrderRequest request)
+	public async Task WhenOrderIsModifiedSuccessfullyThenItReturnsSuccess(ModifyOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
 
-		OrderBookModificationResponse res = await _orderBookService.ModifyOrder(request);
+		ModifyOrderResponse res = await _orderBookService.ModifyOrder(request);
 
 		res.Status.Code.ShouldBe((int)StatusCode.OK);
 	}
 
 	[Theory]
 	[MemberData(nameof(GetModifyOrderRequests))]
-	public async Task WhenOrderIsModifiedSuccessfullyThenEffectiveTimeIsSetToUtcNow(AddOrModifyOrderRequest request)
+	public async Task WhenOrderIsModifiedSuccessfullyThenEffectiveTimeIsSetToUtcNow(ModifyOrderRequest request)
 	{
 		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
 
-		OrderBookModificationResponse res = await _orderBookService.ModifyOrder(request);
+		ModifyOrderResponse res = await _orderBookService.ModifyOrder(request);
 
 		(DateTime.UtcNow - res.EffectiveFrom.ToDateTime()).ShouldBeLessThan(TimeSpan.FromSeconds(10));
 	}
@@ -194,7 +206,7 @@ public class OrderBookServiceTests
 	{
 		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
 
-		OrderBookModificationResponse res = await _orderBookService.RemoveOrder(request);
+		ModifyOrderResponse res = await _orderBookService.RemoveOrder(request);
 
 		res.Status.Code.ShouldBe((int)StatusCode.OK);
 	}
@@ -205,12 +217,13 @@ public class OrderBookServiceTests
 	{
 		_ = _mockOrderBookRepository.ModifyOrderInOrderBook(Arg.Any<AssetDefinition>(), Arg.Any<OrderEntity>()).Returns(Task.CompletedTask);
 
-		OrderBookModificationResponse res = await _orderBookService.RemoveOrder(request);
+		ModifyOrderResponse res = await _orderBookService.RemoveOrder(request);
 
 		(DateTime.UtcNow - res.EffectiveFrom.ToDateTime()).ShouldBeLessThan(TimeSpan.FromSeconds(10));
 	}
 
-	public static IEnumerable<object[]> GetModifyOrderRequests() => Fixture.CreateMany<AddOrModifyOrderRequest>(NumTests).Select(or => new object[] {or});
+	public static IEnumerable<object[]> GetAddOrderRequests() => Fixture.CreateMany<AddOrderRequest>(NumTests).Select(or => new object[] {or});
+	public static IEnumerable<object[]> GetModifyOrderRequests() => Fixture.CreateMany<ModifyOrderRequest>(NumTests).Select(or => new object[] {or});
 	public static IEnumerable<object[]> GetRemoveOrderRequests() => Fixture.CreateMany<RemoveOrderRequest>(NumTests).Select(or => new object[] {or});
 
 	public static IEnumerable<object[]> GetPriceTestData()

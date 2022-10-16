@@ -48,7 +48,7 @@ public class ExceptionInterceptor: InterceptorBase
 
 	private async Task WipeIdempotencyKey<TRequest>(TRequest request) where TRequest : class
 	{
-		if (typeof(TRequest).GetProperty(nameof(AddOrModifyOrderRequest.IdempotencyKey))?.GetValue(request) is not string idempotencyKey) return;
+		if (typeof(TRequest).GetProperty(nameof(AddOrderRequest.IdempotencyKey))?.GetValue(request) is not string idempotencyKey) return;
 		
 		_logger.LogInformation("Clearing idempotency key due to exception for {@Request}", request);
 

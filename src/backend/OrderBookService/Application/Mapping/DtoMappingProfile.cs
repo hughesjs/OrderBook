@@ -14,8 +14,11 @@ public class DtoMappingProfile: Profile
 	{
 		CreateMap<GuidValue, Guid>().ReverseMap();
 		CreateMap<AssetDefinitionValue, AssetDefinition>().ReverseMap();
-		CreateMap<AddOrModifyOrderRequest, Order>()
+		CreateMap<ModifyOrderRequest, Order>()
 		   .ForMember(dest => dest.Id, opt => opt.MapFrom(s => s.OrderId.Value))
+		   .ForMember(dest => dest.EffectiveTime, opt => opt.Ignore());
+		CreateMap<AddOrderRequest, Order>()
+		   .ForMember(dest => dest.Id,            opt => opt.Ignore())
 		   .ForMember(dest => dest.EffectiveTime, opt => opt.Ignore());
 	}
 }
