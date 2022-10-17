@@ -3,6 +3,8 @@ using Grpc.Core;
 using OrderBookProtos.CustomTypes;
 using OrderBookProtos.ServiceBases;
 using OrderBookService.ApiTests.TestInfrastructure;
+using OrderBookService.Application.Misc;
+using OrderBookService.Domain.Entities;
 using Shouldly;
 using Xunit.Abstractions;
 
@@ -22,8 +24,9 @@ public class OrderBookServiceTests: ApiTestBase
 		_client = new(Channel);
 	}
 
-	[Fact]
-	public async Task GivenCollectionExistsThenWeCanAddOrdersToIt()
+	[Theory]
+	[MemberData(nameof(AddOrderRequestGenerator), NumTestEntries)]
+	public async Task GivenCollectionExistsThenWeCanAddOrdersToIt(AddOrderRequest req)
 	{
 		
 		AssetDefinitionValue asset = new()
@@ -31,19 +34,17 @@ public class OrderBookServiceTests: ApiTestBase
 									Class  = AssetClass.CoinPair,
 									Symbol = "USDETH"
 								};
+		
+		req.AssetDefinition = asset;
 
-		for (int i = 0; i < NumTestEntries; i++)
-		{
-			AddOrderRequest req = AutoFix.Create<AddOrderRequest>();
-			req.AssetDefinition = asset;
-
-			AddOrderResponse? res = await _client.AddOrderAsync(req);
-			res.Status.Code.ShouldBe((int)StatusCode.OK);
-		}
+		AddOrderResponse? res = await _client.AddOrderAsync(req);
+		res.Status.Code.ShouldBe((int)StatusCode.OK);
 	}
-	
-	[Fact]
-	public async Task GivenIHaveAddedAnOrderThenIGetAnOrderIdBack()
+
+
+	[Theory]
+	[MemberData(nameof(AddOrderRequestGenerator), NumTestEntries)]
+	public async Task GivenIHaveAddedAnOrderThenIGetAnOrderIdBack(AddOrderRequest req)
 	{
 		
 		AssetDefinitionValue asset = new()
@@ -52,128 +53,139 @@ public class OrderBookServiceTests: ApiTestBase
 										 Symbol = "USDETH"
 									 };
 
-		for (int i = 0; i < NumTestEntries; i++)
-		{
-			AddOrderRequest req = AutoFix.Create<AddOrderRequest>();
-			req.AssetDefinition = asset;
+		req.AssetDefinition = asset;
 
-			AddOrderResponse? res = await _client.AddOrderAsync(req);
-			Guid.TryParse(res.OrderId.Value, out Guid guid).ShouldBeTrue();
-			guid.ShouldNotBe(Guid.Empty);
-		}
+		AddOrderResponse? res = await _client.AddOrderAsync(req);
+		Guid.TryParse(res.OrderId.Value, out Guid guid).ShouldBeTrue();
+		guid.ShouldNotBe(Guid.Empty);
 	}
 
-	[Fact]
-	public async Task GivenCollectionDoesNotExistThenAddingAnOrderCreatesIt()
+	[Theory]
+	[MemberData(nameof(AddOrderRequestGenerator), NumTestEntries)]
+	public async Task GivenCollectionDoesNotExistThenAddingAnOrderCreatesIt(AddOrderRequest req)
 	{
 		AssetDefinitionValue asset = AutoFix.Create<AssetDefinitionValue>();
 		
-		for (int i = 0; i < NumTestEntries; i++)
-		{
-			AddOrderRequest req = AutoFix.Create<AddOrderRequest>();
-			req.AssetDefinition = asset;
+		req.AssetDefinition = asset;
 
-			AddOrderResponse? res = await _client.AddOrderAsync(req);
-			res.Status.Code.ShouldBe((int)StatusCode.OK);
-		}
+		AddOrderResponse? res = await _client.AddOrderAsync(req);
+		res.Status.Code.ShouldBe((int)StatusCode.OK);
 	}
 	
 	
-	[Fact]
-	public async Task GivenOrderExistsThenWeCanModifyIt()
+	[Theory]
+	[MemberData(nameof(AddOrderRequestGenerator), NumTestEntries)]
+	public async Task GivenOrderExistsThenWeCanModifyIt(AddOrderRequest addReq)
 	{
 		AssetDefinitionValue    asset = AutoFix.Create<AssetDefinitionValue>();
 		
-		for (int i = 0; i < NumTestEntries; i++)
-		{
-			AddOrderRequest addReq = AutoFix.Create<AddOrderRequest>();
-			addReq.AssetDefinition = asset;
+		addReq.AssetDefinition = asset;
 
-			AddOrderResponse? addRes = await _client.AddOrderAsync(addReq);
-			addRes.Status.Code.ShouldBe((int)StatusCode.OK);
+		AddOrderResponse? addRes = await _client.AddOrderAsync(addReq);
+		addRes.Status.Code.ShouldBe((int)StatusCode.OK);
 
-			ModifyOrderRequest modReq = AutoFix.Build<ModifyOrderRequest>()
-											   .With(r => r.AssetDefinition, addReq.AssetDefinition)
-											   .With(r => r.OrderId, addRes.OrderId)
-											   .With(r => r.Price, () => Random.Shared.Next())
-											   .Create();
+		ModifyOrderRequest modReq = AutoFix.Build<ModifyOrderRequest>()
+										   .With(r => r.AssetDefinition, addReq.AssetDefinition)
+										   .With(r => r.OrderId, addRes.OrderId)
+										   .With(r => r.Price, () => Random.Shared.Next())
+										   .Create();
 
-			ModifyOrderResponse modRes         = await _client.ModifyOrderAsync(modReq);
-			
-			modRes.Status.Code.ShouldBe((int)StatusCode.OK);
-		}
+		ModifyOrderResponse modRes         = await _client.ModifyOrderAsync(modReq);
+		
+		modRes.Status.Code.ShouldBe((int)StatusCode.OK);
 	}
 	
-	[Fact]
-	public async Task GivenOrderExistsTheWeCanRemoveIt()
+	[Theory]
+	[MemberData(nameof(AddOrderRequestGenerator), NumTestEntries)]
+	public async Task GivenOrderExistsTheWeCanRemoveIt(AddOrderRequest addReq)
 	{
 		AssetDefinitionValue asset = AutoFix.Create<AssetDefinitionValue>();
 		
-		for (int i = 0; i < NumTestEntries; i++)
-		{
-			AddOrderRequest addReq = AutoFix.Create<AddOrderRequest>();
-			addReq.AssetDefinition = asset;
+		addReq.AssetDefinition = asset;
 
-			AddOrderResponse? addRes = await _client.AddOrderAsync(addReq);
-			addRes.Status.Code.ShouldBe((int)StatusCode.OK);
-			
-			RemoveOrderRequest remReq = AutoFix.Build<RemoveOrderRequest>()
-											   .With(r => r.AssetDefinition, addReq.AssetDefinition)
-											   .With(r => r.OrderId,         addRes.OrderId)
-											   .Create();
-			
-			ModifyOrderResponse remRes       = await _client.RemoveOrderAsync(remReq);
-			
-			remRes.Status.Code.ShouldBe((int)StatusCode.OK);
-		}
+		AddOrderResponse? addRes = await _client.AddOrderAsync(addReq);
+		addRes.Status.Code.ShouldBe((int)StatusCode.OK);
+		
+		RemoveOrderRequest remReq = AutoFix.Build<RemoveOrderRequest>()
+										   .With(r => r.AssetDefinition, addReq.AssetDefinition)
+										   .With(r => r.OrderId,         addRes.OrderId)
+										   .Create();
+		
+		ModifyOrderResponse remRes       = await _client.RemoveOrderAsync(remReq);
+		
+		remRes.Status.Code.ShouldBe((int)StatusCode.OK);
 	}
 	
-	[Fact]
-	public async Task GivenOrderIsSatisfiableThenWeCanGetAPrice()
+	[Theory]
+	[MemberData(nameof(PossibleTradeDataGenerator), NumTestEntries)]
+	public async Task GivenOrderIsSatisfiableThenWeCanGetAPrice(GetPriceTestData testData)
 	{
-		for (int i = 0; i < NumTestEntries; i++)
+		foreach (AddOrderRequest request in testData.OrderRequests)
+		{
+			AddOrderResponse? res = await _client.AddOrderAsync(request);
+			res.OrderId.ShouldNotBeNull();
+		}
+		
+		GetPriceRequest req = new()
+							  {
+								  AssetDefinition = testData.OrderRequests.First().AssetDefinition,
+								  Amount          = testData.Amount,
+								  OrderAction     = testData.Action
+							  };
+
+		PriceResponse? priceRes = await _client.GetPriceAsync(req);
+		priceRes.Status.Code.ShouldBe((int)StatusCode.OK);
+		((decimal)priceRes.Price).ShouldBe(testData.ExpectedPrice, 0.1m);
+		(DateTime.UtcNow - priceRes.ValidAt.ToDateTime()).ShouldBeLessThan(TimeSpan.FromSeconds(10));
+	}
+
+	public static IEnumerable<object[]> PossibleTradeDataGenerator(int num)
+	{
+		List<GetPriceTestData> testData = new();
+
+		for (int i = 0; i < num; i++)
 		{
 			AssetDefinitionValue asset = AutoFix.Create<AssetDefinitionValue>();
-			
+
 			OrderAction action             = AutoFix.Create<OrderAction>();
 			decimal     amount             = PositiveDecimal();
 			decimal     basePrice          = PositiveDecimal();
 			decimal[]   amountCoefficients = GetAmountCoefficients();
 			decimal[]   priceCoefficients  = GetPriceCoefficients(action == OrderAction.Buy);
-			
+
 			decimal priceMux      = DotProduct(amountCoefficients, priceCoefficients);
 			decimal expectedPrice = priceMux*basePrice;
 
 			List<AddOrderRequest> orderRequests = amountCoefficients.Select((t, j) => new AddOrderRequest
-																							  {
-																								  OrderAction     = action == OrderAction.Buy ? OrderAction.Sell : OrderAction.Buy,
-																								  Amount          = j      != amountCoefficients.Length - 1 ? amount* t : amount* t + 0.5m, // Ensure there's a surplus
-																								  AssetDefinition = asset,
-																								  IdempotencyKey  = AutoFix.Create<GuidValue>(),
-																								  Price           = basePrice*priceCoefficients[j]
+																					  {
+																						  OrderAction     = action == OrderAction.Buy ? OrderAction.Sell : OrderAction.Buy,
+																						  Amount          = j      != amountCoefficients.Length - 1 ? amount*t : amount*t + 0.5m, // Ensure there's a surplus
+																						  AssetDefinition = asset,
+																						  IdempotencyKey  = AutoFix.Create<GuidValue>(),
+																						  Price           = basePrice*priceCoefficients[j]
 
-																							  }).ToList();
-			
-			foreach (AddOrderRequest request in orderRequests)
-			{
-				AddOrderResponse? res = await _client.AddOrderAsync(request);
-				res.OrderId.ShouldNotBeNull();
-			}
-			
-			GetPriceRequest req = new()
-								  {
-									  AssetDefinition = asset,
-									  Amount          = amount,
-									  OrderAction     = action
-								  };
-
-			PriceResponse? priceRes = await _client.GetPriceAsync(req);
-			priceRes.Status.Code.ShouldBe((int)StatusCode.OK);
-			((decimal)priceRes.Price).ShouldBe(expectedPrice, 0.1m);
-			(DateTime.UtcNow - priceRes.ValidAt.ToDateTime()).ShouldBeLessThan(TimeSpan.FromSeconds(10));
+																					  }).ToList();
+			testData.Add(new()
+						 {
+							 Action        = action,
+							 Amount        = amount,
+							 ExpectedPrice = expectedPrice,
+							 OrderRequests = orderRequests
+						 });
 		}
+		return testData.Select(td => new[] {td});
 	}
-	
+
+	public static IEnumerable<object[]> AddOrderRequestGenerator(int num) => AutoFix.CreateMany<AddOrderRequest>(num).Select(r => new [] {r});
+
+	public class GetPriceTestData
+	{
+		public required List<AddOrderRequest> OrderRequests        { get; init; }
+		public required decimal               Amount        { get; init; }
+		public required decimal               ExpectedPrice { get; init; }
+		public required OrderAction           Action        { get; init; }
+	}
+
 	private static decimal PositiveDecimal() => decimal.Abs(AutoFix.Create<decimal>());
 
 	private static decimal[] GetAmountCoefficients()
