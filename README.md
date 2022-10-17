@@ -132,14 +132,14 @@ Caching will also not play much of a role in these as they are all write request
 
 # Benchmark Results
 
-|    Method | OrdersNeededToComplete |             Mean |            Error |           StdDev |
-|---------- |----------------------- |-----------------:|-----------------:|-----------------:|
-| Benchmark |                      1 |         799.1 ns |          2.70 ns |          2.53 ns |
-| Benchmark |                    100 |      29,564.2 ns |         61.46 ns |         57.49 ns |
-| Benchmark |                   1000 |     352,204.7 ns |        976.07 ns |        913.02 ns |
-| Benchmark |                  10000 |   4,802,821.2 ns |     10,593.41 ns |      9,909.08 ns |
-| Benchmark |                 100000 |  72,150,767.8 ns |  1,377,076.38 ns |  1,288,118.10 ns |
-| Benchmark |                1000000 | 994,667,982.6 ns | 16,292,498.87 ns | 15,240,013.55 ns |
+| Method    | OrdersNeededToComplete |        Mean (ns) |        Error (ns) |      StdDev (ns) |
+|-----------|------------------------|-----------------:|------------------:|-----------------:|
+| Benchmark | 1                      |            799.1 |              2.70 |             2.53 |
+| Benchmark | 100                    |         29,564.2 |             61.46 |            57.49 |
+| Benchmark | 1000                   |        352,204.7 |            976.07 |           913.02 |
+| Benchmark | 10000                  |      4,802,821.2 |         10,593.41 |         9,909.08 |
+| Benchmark | 100000                 |     72,150,767.8 |      1,377,076.38 |     1,288,118.10 |
+| Benchmark | 1000000                |    994,667,982.6 |     16,292,498.87 |    15,240,013.55 |
 
 ![img.png](docs/img.png)
 
@@ -163,10 +163,10 @@ As such, I'd take the results with a grain of salt.
 
 ## Get Price Tests
 
-| Caching Enabled   | Avg (ms) | Min (ms) | Med (ms) | Max (ms) | p(90) (ms) | p(95) (ms) |
-|-------------------|----------|----------|----------|----------|------------|------------| 
-| No                | 18.85    | 0.9164   | 1.64     | 499.04   | 5.22       | 8.85       | 
-| Yes               | 17.18    | 0.8948   | 1.79     | 468.85   | 4.74       | 9.38       |
+| Caching Enabled   |  Avg (ms) |  Min (ms) |  Med (ms) |  Max (ms) |  p(90) (ms) |  p(95) (ms) |
+|-------------------|----------:|----------:|----------:|----------:|------------:|------------:| 
+| No                |     18.85 |    0.9164 |      1.64 |    499.04 |        5.22 |        8.85 | 
+| Yes               |     17.18 |    0.8948 |      1.79 |    468.85 |        4.74 |        9.38 |
 
 These tests show that there is, perhaps, a marginal improvement when caching is enabled. However, it is not a straightforward assessment to make as the median and P(95) times were slightly worse.
 
@@ -179,11 +179,11 @@ Caching is enabled for all of these, however, this shouldn't have a significant 
 
 There's a cycle test (add then remove) rather than a remove test because generating enough test data to handle sustained removes was impractical.
 
-| Operation    | Avg (ms) | Min (ms) | Med (ms) | Max (ms) | p(90) (ms) | p(95) (ms) |
-|--------------|----------|----------|----------|----------|------------|------------|
-| Add Order    | 23.23    | 0.9596   | 3.65     | 571.0    | 10.12      | 13.06      | 
-| Modify Order | 19.14    | 0.850    | 2.100    | 488.6    | 6.900      | 10.34      |
-| Cycle Order  | 14.25    | 1.220    | 3.89     | 477.32   | 12.24      | 46.88      |
+| Operation    |  Avg (ms) |  Min (ms) |  Med (ms) |  Max (ms) |  p(90) (ms) |  p(95) (ms) |
+|--------------|----------:|----------:|----------:|----------:|------------:|------------:|
+| Add Order    |     23.23 |    0.9596 |      3.65 |     571.0 |       10.12 |       13.06 | 
+| Modify Order |     19.14 |     0.850 |     2.100 |     488.6 |       6.900 |       10.34 |
+| Cycle Order  |     14.25 |     1.220 |      3.89 |    477.32 |       12.24 |       46.88 |
 
 All of these tests execute in similarly quick times. I suspect the add order test may be slower that it should be due to the fact that the collection grows significantly as the test progresses, whereas this is not the case for each other test.
 
