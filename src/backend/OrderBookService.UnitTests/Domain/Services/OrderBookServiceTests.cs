@@ -137,13 +137,6 @@ public class OrderBookServiceTests
 		((decimal)res.Price).ShouldBe(testCase.ExpectedPrice, 0.1m);
 	}
 
-	// [Theory]
-	// [MemberData(nameof(GetPriceTestData), NumTests)]
-	// internal async Task GivenAnOrderBookIfOrderCannotBeSatisfiedThenReturnBestMatch(GetPriceTestCase testCase)
-	// {
-	// 	
-	// }
-
 	[Theory]
 	[MemberData(nameof(GetAddOrderRequests))]
 	public async Task WhenOrderIsAddedSuccessfullyThenItReturnsSuccess(AddOrderRequest request)
@@ -237,11 +230,12 @@ public class OrderBookServiceTests
 		// I did start off simple and iterate
 		for (int i = 0; i < NumTests; i++)
 		{
+			int         numCoefficients    = (Fixture.Create<int>() % 10) + 1;
 			OrderAction action             = Fixture.Create<OrderAction>();
 			decimal     amount             = PositiveDecimal();
 			decimal     lowestPrice        = PositiveDecimal();
-			decimal[]   amountCoefficients = GetAmountCoefficients();
-			decimal[]   priceCoefficients  = GetPriceCoefficients(action == OrderAction.Buy);
+			decimal[]   amountCoefficients = GetAmountCoefficients(numCoefficients);
+			decimal[]   priceCoefficients  = GetPriceCoefficients(numCoefficients, action == OrderAction.Buy);
 
 			decimal priceMux = DotProduct(amountCoefficients, priceCoefficients);
 
@@ -283,18 +277,41 @@ public class OrderBookServiceTests
 
 	private static decimal PositiveDecimal() => decimal.Abs(Fixture.Create<decimal>());
 
-	private static decimal[] GetAmountCoefficients()
+	private static decimal[] GetAmountCoefficients(int n)
 	{
-		decimal thetaOne   = (decimal)Random.Shared.NextDouble();                   
-		decimal thetaTwo   = (1m - thetaOne) * (decimal)Random.Shared.NextDouble();
-		decimal thetaThree = 1m - thetaOne - thetaTwo;
-		return new[] {thetaOne, thetaTwo, thetaThree};
+		if (n == 1)
+		{
+			return new[] {1m};
+		}
+		
+		List<decimal> thetas = new();
+
+		decimal thetaOne = (decimal)Random.Shared.NextDouble();
+		thetas.Add(thetaOne);
+		
+		decimal remaining = 1m - thetaOne;
+		
+		for (int i = 1; i < n-1; i++)
+		{
+			decimal thetaK = remaining * (decimal)Random.Shared.NextDouble();
+			remaining -= thetaK;
+			thetas.Add(thetaK);
+		}
+		
+		decimal thetaN = remaining;
+		thetas.Add(thetaN);
+
+		return thetas.ToArray();
 	}
 
-	private static decimal[] GetPriceCoefficients(bool isBuy) => isBuy ? new[] {PositiveDecimal(), PositiveDecimal(), PositiveDecimal()}.OrderBy(d => d).ToArray()
-																	 : new [] {PositiveDecimal(), PositiveDecimal(), PositiveDecimal()}.OrderByDescending(d => d).ToArray();
+	private static decimal[] GetPriceCoefficients(int n, bool isBuy) => isBuy ? Fixture.CreateMany<decimal>(n).Select(decimal.Abs).OrderBy(d => d).ToArray()
+																	 : Fixture.CreateMany<decimal>(n).Select(decimal.Abs).OrderByDescending(d => d).ToArray();
 
-	private static decimal DotProduct(decimal[] a, decimal[] b) => a.Select((t, i) => t*b[i]).Sum();
+	private static decimal DotProduct(decimal[] a, decimal[] b)
+	{
+		a.Length.ShouldBe(b.Length);
+		return a.Length == 1 ? a[0]* b[0] : a.Select((t, i) => t*b[i]).Sum();
+	} 
 
 
 	internal class GetPriceTestCase
