@@ -17,11 +17,11 @@ If you don't have these installed, there are docker-compose files you can use to
 
 They all follow the naming convention `docker-compose-X.yaml`.
 
-| X | Function |
-| ---- | ---- |
-| dev | All dependencies are created with exposed ports on localhost. This is used for the API tests. | 
-| perf | Runs the performance tests, you must provide it with certain `env` vars. Of particular importance is `TEST_FILE` which determines which test it runs.
-| prod | This emulates a production deployment. Dependencies are deployed on a hidden internal network and only the RPC service is exposed on localhost
+| X    | Function                                                                                                                                              |
+|------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| dev  | All dependencies are created with exposed ports on localhost. This is used for the API tests.                                                         | 
+| perf | Runs the performance tests, you must provide it with certain `env` vars. Of particular importance is `TEST_FILE` which determines which test it runs. |
+| prod | This emulates a production deployment. Dependencies are deployed on a hidden internal network and only the RPC service is exposed on localhost        |
 
 I did create a postman collection for this, however, you can't export anything with gRPC endpoints in it for some reason.
 
@@ -142,29 +142,52 @@ As such, I'd take the results with a grain of salt.
 
 ## Get Price Tests
 
-| Caching Enabled     | Avg (ms) | Min (ms) | Med (ms) | Max (ms) | p(90) (ms) | p(95) (ms) |
-|-----|----------|----------|----------|----------|------------|------------| 
-| No |          |          |          |          |            |            | 
-| Yes | 17.18    | 0.8948   | 1.79     | 468.85   | 4.74       | 9.38       |
+| Caching Enabled   | Avg (ms) | Min (ms) | Med (ms) | Max (ms) | p(90) (ms) | p(95) (ms) |
+|-------------------|----------|----------|----------|----------|------------|------------| 
+| No                | 18.85    | 0.9164   | 1.64     | 499.04   | 5.22       | 8.85       | 
+| Yes               | 17.18    | 0.8948   | 1.79     | 468.85   | 4.74       | 9.38       |
+
+These tests show that there is, perhaps, a marginal improvement when caching is enabled. However, it is not a straightforward assessment to make as the median and P(95) times were slightly worse.
+
+In order to establish whether the caching is truly effective or not, a more realistic workload would need to be devised, or real-world data gathered.
 
 
 ## Other Endpoints
 
 Caching is enabled for all of these, however, this shouldn't have a significant impact as these are write operations.
 
-There's a cycle test rather than a remove test because generating enough test data to handle sustained removes was impractical.
+There's a cycle test (add then remove) rather than a remove test because generating enough test data to handle sustained removes was impractical.
 
-| Operation | Avg (us) | Min (us) | Med (us) | Max (us) | p(90) (us) | p(95) (us) |
-|--| ------ | ----- | ----- | ---- | ---- | ---- | 
-| Add Order | | | | | | | 
-| Modify Order | | | | | | |
-| Cycle Order | 
+| Operation    | Avg (ms) | Min (ms) | Med (ms) | Max (ms) | p(90) (ms) | p(95) (ms) |
+|--------------|----------|----------|----------|----------|------------|------------|
+| Add Order    | 23.23    | 0.9596   | 3.65     | 571.0    | 10.12      | 13.06      | 
+| Modify Order | 19.14    | 0.850    | 2.100    | 488.6    | 6.900      | 10.34      |
+| Cycle Order  | 14.25    | 1.220    | 3.89     | 477.32   | 12.24      | 46.88      |
+
+All of these tests execute in similarly quick times. I suspect the add order test may be slower that it should be due to the fact that the collection grows significantly as the test progresses, whereas this is not the case for each other test.
+
+To combat this, the collection could be reset between each iteration.
+
+## Conclusions
+
+It is worth again remembering that these numbers are whilst significantly loaded. Individual calculation times would be much faster.
+
+The algorithm is fairly fast, calculating prices in the low tens of milliseconds for pricing requiring a large number of orders to satisfy. 
+
+CRUD operations complete in a similarly fast time-frame.
+
+However, there is always room for improvement, some speed gains could likely be made at the expense of code-maintainability and safety by removing some of the mapping and validation.
 
 # Future Developments
 
-# Notes
+- The API needs authentication
+- Develop a more realistic performance test suite
+- Implement auto-scaling
+- Optimise the hot-path further
+- Investigate whether single document order lists perform better or worse than multi-document ones
+- Implement an RPC streaming endpoint that can stream changes to orderlists to a persistent connection
 
-⚠️ This isn't finished yet, but the bulk of the functionality is now there. I'll be polishing it off tonight/tomorrow ⚠️
+# Notes
 
 - If you are on Windows, make sure you have symlinks enabled in your git config or this **will not build**. No changes are needed on MacOs or Linux.
 - The use of preview .NET 7 is deliberate, this is largely down to me wanting to use `required` properties and the huge [LINQ speed increases](https://devblogs.microsoft.com/dotnet/performance_improvements_in_net_7/).
