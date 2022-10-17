@@ -102,6 +102,8 @@ This test has one purpose, it uses `DotnetBenchmark` to evaluate the speed of th
 
 If I were to spend some time optimising the algorithm for speed, this is the test I would use to guide me.
 
+The actual test algorithm is essentially the same as the one used for unit testing.
+
 ## Load/Performance Tests
 
 The benchmark is great for looking at that calculation in isolation. However, it tells us nothing about the speed of the whole system.
@@ -127,6 +129,25 @@ This test should see significant improvements from the caching as the document i
 Other endpoints are simply spammed with valid requests and the time monitored, since there's no real difference in the execution complexity of any given request.
 
 Caching will also not play much of a role in these as they are all write requests.
+
+# Benchmark Results
+
+|    Method | OrdersNeededToComplete |             Mean |            Error |           StdDev |
+|---------- |----------------------- |-----------------:|-----------------:|-----------------:|
+| Benchmark |                      1 |         799.1 ns |          2.70 ns |          2.53 ns |
+| Benchmark |                    100 |      29,564.2 ns |         61.46 ns |         57.49 ns |
+| Benchmark |                   1000 |     352,204.7 ns |        976.07 ns |        913.02 ns |
+| Benchmark |                  10000 |   4,802,821.2 ns |     10,593.41 ns |      9,909.08 ns |
+| Benchmark |                 100000 |  72,150,767.8 ns |  1,377,076.38 ns |  1,288,118.10 ns |
+| Benchmark |                1000000 | 994,667,982.6 ns | 16,292,498.87 ns | 15,240,013.55 ns |
+
+![img.png](docs/img.png)
+
+The results for the actual price calculation algorithm are extremely good.
+
+Processing speeds for low values of orders process extremely fast (likely being accellerated by hardware intrinsics).
+
+After this, the processing is still very fast and seems to be scaling linearly in O(N) time.
 
 # Performance Testing Results
 
@@ -176,7 +197,7 @@ The algorithm is fairly fast, calculating prices in the low tens of milliseconds
 
 CRUD operations complete in a similarly fast time-frame.
 
-However, there is always room for improvement, some speed gains could likely be made at the expense of code-maintainability and safety by removing some of the mapping and validation.
+However, there is always room for improvement, some speed gains could likely be made at the expense of code-maintainability and safety by removing some of the mapping and validation. This is the area I would focus on first as the calculation algorithm itself seems extremely fast from the results of the benchmarking.
 
 # Workflows
 
