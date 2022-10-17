@@ -1,11 +1,13 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using OrderBookService.Application.Caching;
 using OrderBookService.Application.Config;
 using OrderBookService.Application.Exceptions;
 using OrderBookService.Application.Misc;
 using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
+using StackExchange.Redis;
 
 namespace OrderBookService.Domain.Repositories.Mongo.OrderBooks;
 
@@ -13,23 +15,37 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 {
 	private readonly        ILogger<OrderBookRepository> _logger;
 	private static readonly ReplaceOptions               UpsertOptions = new() {IsUpsert = true};
+	private readonly        IDatabaseAsync               _redis;
 
-	public OrderBookRepository(IOptions<MongoDbSettings> mongoSettings, ILogger<OrderBookRepository> logger) : base(mongoSettings)
+	public OrderBookRepository(IOptions<MongoDbSettings> mongoSettings, ILogger<OrderBookRepository> logger, IConnectionMultiplexer connectionMultiplexer) : base(mongoSettings)
 	{
+		_redis  = connectionMultiplexer.GetDatabase();
 		_logger = logger;
 	}
 
 	public override async Task<OrderBookEntity> GetSingleAsync(AssetDefinition key)
 	{
+		string           redisKey     = key.Class.ToString();
+		OrderBookEntity? cachedEntity = await _redis.GetData<OrderBookEntity>(redisKey);
+		if (cachedEntity is not null)
+		{
+			return cachedEntity;
+		}
+		
 		IMongoCollection<OrderBookEntity> collection = GetCollection(key);
-		IAsyncCursor<OrderBookEntity> res = await collection.FindAsync(f => f.UnderlyingAsset == key);
-		return await res.SingleOrDefaultAsync() ?? throw new FailedToFindOrderBookException(key);
+		IAsyncCursor<OrderBookEntity>     res        = await collection.FindAsync(f => f.UnderlyingAsset == key);
+		OrderBookEntity?                  obe        = await res.SingleOrDefaultAsync();
+
+		await _redis.SetData(redisKey, obe);
+		
+		return obe ?? throw new FailedToFindOrderBookException(key);
 	}
 
 	public override async Task<ReplaceOneResult> UpsertSingleAsync(OrderBookEntity orderBook)
 	{
 		IMongoCollection<OrderBookEntity> collection = GetCollection(orderBook.UnderlyingAsset);
 		ReplaceOneResult res  = await collection.ReplaceOneAsync(f => f.UnderlyingAsset == orderBook.UnderlyingAsset, orderBook, UpsertOptions);
+		await _redis.KeyDeleteAsync(orderBook.UnderlyingAsset.Class.ToString());
 		return res;
 	}
 
@@ -53,6 +69,8 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 		UpdateResult?                     res        = await collection.UpdateOneAsync(f => f.UnderlyingAsset == asset, update);
 		bool                              success    = (res is not null && res.ModifiedCount > 0);
 
+		await _redis.KeyDeleteAsync(asset.Class.ToString());
+		
 		if (success)
 		{
 			_logger.LogDebug("Successfully added {OrderId} to {@Asset}", order.Id, asset);
@@ -74,6 +92,8 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 		UpdateResult?                     res        = await collection.UpdateOneAsync(filter, update);
 		bool                              success    = res is not null && res.ModifiedCount > 0;
 
+		await _redis.KeyDeleteAsync(asset.Class.ToString());
+		
 		if (success)
 		{
 			return;
@@ -98,6 +118,8 @@ internal sealed class OrderBookRepository: MongoRepositoryBase<OrderBookEntity, 
 		UpdateResult?                     res        = await collection.UpdateOneAsync(f => f.UnderlyingAsset == asset, update);
 
 		bool success = res is not null && res.ModifiedCount > 0;
+		
+		await _redis.KeyDeleteAsync(asset.Class.ToString());
 		
 		if (success)
 		{

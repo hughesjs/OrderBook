@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using NSubstitute;
 using OrderBookProtos.CustomTypes;
 using OrderBookService.Application.Config;
 using OrderBookService.Application.Exceptions;
@@ -12,6 +13,7 @@ using OrderBookService.Domain.Entities;
 using OrderBookService.Domain.Models.Assets;
 using OrderBookService.Domain.Repositories.Mongo.OrderBooks;
 using Shouldly;
+using StackExchange.Redis;
 
 namespace OrderBookService.IntegrationTests.Domain.Repositories;
 
@@ -55,7 +57,8 @@ public class OrderBookRepositoryTests : IDisposable
 																	DatabaseName     = databaseName
 																});
 
-		_repo = new OrderBookRepository(mongoOptions, NullLogger<OrderBookRepository>.Instance);
+		// This could do with tests for the caching too
+		_repo = new OrderBookRepository(mongoOptions, NullLogger<OrderBookRepository>.Instance, Substitute.For<IConnectionMultiplexer>());
 	}
 
 	[Fact]
