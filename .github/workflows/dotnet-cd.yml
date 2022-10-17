@@ -8,7 +8,7 @@ on:
 jobs:
   
   add-order-perf-test:
-    name: Fake Deployment and Perf Testing
+    name: Add Order Perf Testing
     runs-on: ubuntu-latest
     env:
       API_TEST_CONNECTION_STRING: "http://orderbook:5237"
@@ -34,7 +34,7 @@ jobs:
         run: docker-compose -f docker-compose-perf-test.yml up --always-recreate-deps --abort-on-container-exit --force-recreate --build perftests
 
   modify-order-perf-test:
-    name: Fake Deployment and Perf Testing
+    name: Modify Order Perf Testing
     runs-on: ubuntu-latest
     env:
       API_TEST_CONNECTION_STRING: "http://orderbook:5237"
@@ -60,7 +60,7 @@ jobs:
         run: docker-compose -f docker-compose-perf-test.yml up --always-recreate-deps --abort-on-container-exit --force-recreate --build perftests
         
   get-price-perf-test:
-    name: Fake Deployment and Perf Testing
+    name: Get Price Perf Testing
     runs-on: ubuntu-latest
     env:
       API_TEST_CONNECTION_STRING: "http://orderbook:5237"
@@ -86,7 +86,7 @@ jobs:
         run: docker-compose -f docker-compose-perf-test.yml up --always-recreate-deps --abort-on-container-exit --force-recreate --build perftests
         
   cycle-perf-test:
-    name: Fake Deployment and Perf Testing
+    name: Cycle Perf Testing
     runs-on: ubuntu-latest
     env:
       API_TEST_CONNECTION_STRING: "http://orderbook:5237"
