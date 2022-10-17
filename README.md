@@ -178,6 +178,18 @@ CRUD operations complete in a similarly fast time-frame.
 
 However, there is always room for improvement, some speed gains could likely be made at the expense of code-maintainability and safety by removing some of the mapping and validation.
 
+# Workflows
+
+There are two workflows set up with this project.
+
+## Continuous Integration
+
+This workflow runs the API, Integration and Unit tests ensuring they all pass before any PR can be merged.
+
+## "Fake" Continuous Deployment
+
+This workflow runs on every push to `master` it "deploys" the solution and runs the performance tests. The in-pipeline `docker-compose` is a stand-in for a real deployment in this case.
+
 # Future Developments
 
 - The API needs authentication
