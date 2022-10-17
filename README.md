@@ -130,14 +130,35 @@ Caching will also not play much of a role in these as they are all write request
 
 # Performance Testing Results
 
+It should be noted that I ran these tests on my local machine. 
+
+As such, the `k6` workers will have been interfering with the test, as would everything else running on my machine.
+
+Furthermore, the latency of communicating between the Mongo and Redis servers is much lower than it might be.
+
+It would have been better to run these on separate machines entirely, but I've not got the hardware available.
+
+As such, I'd take the results with a grain of salt.
+
 ## Get Price Tests
 
-| Caching Enabled     | Avg (us) | Min (us) | Med (us) | Max (us) | p(90) (us) | p(95) (us) |
-|-----| ------ | ----- | ----- | ---- | ---- | ---- | 
-| No | 
-grpc_req_duration....: avg=17.54ms min=892.73µs med=1.62ms max=465.69ms p(90)=2.81ms p(95)=9.96ms
+| Caching Enabled     | Avg (ms) | Min (ms) | Med (ms) | Max (ms) | p(90) (ms) | p(95) (ms) |
+|-----|----------|----------|----------|----------|------------|------------| 
+| No |          |          |          |          |            |            | 
+| Yes | 17.18    | 0.8948   | 1.79     | 468.85   | 4.74       | 9.38       |
+
 
 ## Other Endpoints
+
+Caching is enabled for all of these, however, this shouldn't have a significant impact as these are write operations.
+
+There's a cycle test rather than a remove test because generating enough test data to handle sustained removes was impractical.
+
+| Operation | Avg (us) | Min (us) | Med (us) | Max (us) | p(90) (us) | p(95) (us) |
+|--| ------ | ----- | ----- | ---- | ---- | ---- | 
+| Add Order | | | | | | | 
+| Modify Order | | | | | | |
+| Cycle Order | 
 
 # Future Developments
 
