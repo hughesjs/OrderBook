@@ -11,7 +11,7 @@ x-test: &test
         dotnet-version: '7.0.x'
         dotnet-quality: 'preview'
     - name: Install deps
-      run: apt-get update && apt-get install -y k6
+      run: sudo apt-get update && sudo apt-get install -y k6
     - name: Build docker stack and run perf tests
       run: docker-compose -f docker-compose-perf-test.yml up --always-recreate-deps --abort-on-container-exit --force-recreate --build perftests
 
